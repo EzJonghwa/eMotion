@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.eMotion.team.member.dao.IMemberDAO">
+
+	<insert id="registMember" parameterType="MemberVO">
+	
+		INSERT INTO member(email, passWord, nickName, useYn, kakaoYn, addr, birthyear)
+		VALUES(#{email},#{password},#{nickName},'Y','N',#{addr},#{birthYear})
+		
+	</insert>
+	
+	<select id="loginMember" parameterType="MemberVO" resultType="MemberVO">
+		
+		SELECT email
+		     , nickName
+		     , passWord
+		FROM member
+		WHERE useYn = 'Y'
+		AND   kakaoYn = 'N'
+		AND   email = #{email}
+		
+	</select>
+	
+	<insert id="kakaoRegistMember" parameterType="MemberVO">
+	
+		INSERT INTO member(email, passWord, nickName, useYn, kakaoYn, addr, birthyear)
+		VALUES(#{email},#{password},#{nickName},'Y','Y',#{addr},#{birthYear})
+		
+	</insert>
+	
+	<select id="kakaoLoginMember" parameterType="MemberVO" resultType="MemberVO">
+		
+		SELECT email
+		     , nickName
+		FROM member
+		WHERE useYn = 'Y'
+		AND   kakaoYn = 'Y'
+		AND   email = #{email}
+		
+	</select>
+	
+	<select id="emailCheck" resultType="int" parameterType="String">
+		SELECT COUNT(*) FROM member
+		WHERE email = #{email}
+	</select>
+	
+	<!-- 자동 로그인 -->
+	<update id="updateAutoLoginToken" parameterType="map">
+	    UPDATE member
+	    SET auto_login_token = #{autoLoginToken}
+	    WHERE email = #{email}
+	</update>
+	<!-- 자동 로그인 -->
+	<select id="findByAutoLoginToken" parameterType="string" resultType="MemberVO">
+	    SELECT * 
+	    FROM member 
+	    WHERE auto_login_token = #{autoLoginToken}
+	</select>
+	
+	
+	
+</mapper>

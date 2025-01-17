@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.eMotion.team.recommend.dao.IRecommendDAO">
+
+	<!-- 필터화면에서 실시간 검색 수 반영하기 -->
+	<select id="getCount" parameterType="SearchVO" resultType="int">
+		SELECT COUNT(*)
+        FROM elecCarInfo
+        WHERE 1=1
+	         <if test="selectedCates != null and selectedCates.size > 0">
+	          	AND carCateDetail IN
+	           <foreach collection="selectedCates" item="cate" open="(" separator="," close=")">
+	               #{cate}
+	           </foreach>
+	         </if>
+             <if test="selectedBrands != null and selectedBrands.size > 0">
+	            AND carBrand IN
+		            <foreach collection="selectedBrands" item="brand" open="(" separator="," close=")">
+		                #{brand}
+		            </foreach>
+             </if>
+             <if test="selectedMinCarPrice != null and selectedMaxCarPrice != null">
+	            AND (carPrice BETWEEN #{selectedMinCarPrice} AND #{selectedMaxCarPrice}
+	                 OR carPrice IS NULL)
+        	</if>
+       		 <if test="selectedSubYN != null and selectedSubYN.size > 0">
+       		 	AND tbSubYN IN
+       		 	<foreach collection="selectedSubYN" item="YN" open="(" separator="," close=")">
+		        	#{YN}
+	            </foreach>
+       		 </if>
+         		
+	</select>
+
+	<!-- 필터에 걸린 리스트 반환 -->
+	<select id="getFilteredList" parameterType="SearchVO" resultType="RecommendVO">
+		SELECT rownum, c.*, <include refid="longSelect"></include>
+		
+		FROM (<include refid="mainRecommend"></include>) c
+		
+		LEFT JOIN car_eff_daily ced
+		ON c.carCate = '승용' AND c.memAddr = ced.addr_detail
+		LEFT JOIN truck_eff_daily ted
+		ON c.carCate = '화물' AND c.memAddr = ted.addr_detail
+		LEFT JOIN bus_eff_daily bed
+		ON c.carCate = '승합' AND c.memAddr = bed.addr_detail
+		LEFT JOIN motor_eff_daily med
+		ON c.carCate = '이륜차' AND c.memAddr = med.addr_detail
+		<if test="priceOrder != 'default' and singleOrder != 'default'">
+			ORDER BY carPrice ${priceOrder}, singleWarm ${singleOrder}
+		</if>		
+		<if test="priceOrder != 'default' and singleOrder == 'default'">
+			ORDER BY carPrice ${priceOrder}
+		</if>		
+		<if test="priceOrder == 'default' and singleOrder != 'default'">
+			ORDER BY singleWarm ${singleOrder}
+		</if>		
+	</select>
+	
+
+	<!-- 차량 상세카드에 지역선택에 따른 보조금, TO현황 반영 -->
+ 	<select id="getSelectedLocInfo" parameterType="LocalVO" resultType="LocalVO">
+	
+		SELECT c.*, <include refid="longSelect"></include> 
+                
+		FROM (
+		        SELECT a.carCate, a.carName, b.addr, b.addrDetail as selectedAddr,
+		               b.govSubsidy, b.locSubsidy, b.sumSubsidy
+		        FROM
+		                (SELECT carCate, carName
+		                FROM elecCarInfo
+		                WHERE carCate = #{carCate}
+		                AND carName = #{carName}
+		                ) a
+		                
+		        LEFT JOIN subsidy b
+		        ON a.carName = b.carName
+		        WHERE b.addrDetail = #{selectedAddr}
+		        ) c
+		LEFT JOIN car_eff_daily ced
+		ON c.carCate = '승용' AND c.selectedAddr = ced.addr_detail
+		LEFT JOIN truck_eff_daily ted
+		ON c.carCate = '화물' AND c.selectedAddr = ted.addr_detail
+		LEFT JOIN bus_eff_daily bed
+		ON c.carCate = '승합' AND c.selectedAddr = bed.addr_detail
+		LEFT JOIN motor_eff_daily med
+		ON c.carCate = '이륜차' AND c.selectedAddr = med.addr_detail
+		
+	</select>
+	
+	<!-- 지역 대분류 -->
+	<select id="getFirstLocal" resultType="LocalVO">
+		SELECT addr
+		FROM subsidy
+		GROUP BY addr
+		ORDER BY addr
+	</select>
+	
+	<!-- 지역 대분류에 다른 소분류 -->
+	<select id="getSecondLocal" parameterType="String" resultType="LocalVO">
+		SELECT addrDetail
+		FROM
+		    (SELECT addr, addrDetail
+		    FROM subsidy
+		    GROUP BY addr, addrDetail)
+		WHERE addr = #{addr}
+	</select>
+	
+	
+	<sql id="longSelect">
+		CASE 
+            WHEN c.carCate = '승용' THEN ced.car_eff_all_all
+            WHEN c.carCate = '화물' THEN ted.truck_eff_all_all
+            WHEN c.carCate = '승합' THEN bed.bus_eff_all_all
+            WHEN c.carCate = '이륜차' THEN med.motor_eff_all_all
+            ELSE NULL
+        END AS effAllAll,
+        CASE 
+            WHEN c.carCate = '승용' THEN ced.CAR_EFF_ALL_FIRST
+            WHEN c.carCate = '화물' THEN ted.TRUCK_EFF_ALL_FIRST
+            WHEN c.carCate = '승합' THEN bed.BUS_EFF_ALL_FIRST
+            WHEN c.carCate = '이륜차' THEN med.MOTOR_EFF_ALL_FIRST
+            ELSE NULL
+        END AS effAllFirst,
+        CASE 
+            WHEN c.carCate = '승용' THEN ced.CAR_EFF_ALL_CORPORATION
+            WHEN c.carCate = '화물' THEN ted.TRUCK_EFF_ALL_CORPORATION
+            WHEN c.carCate = '승합' THEN NULL
+            WHEN c.carCate = '이륜차' THEN med.MOTOR_EFF_ALL_CORPORATION
+            ELSE NULL
+        END AS effAllCorporation,
+        CASE 
+            WHEN c.carCate = '승용' THEN ced.CAR_EFF_ALL_TAXI
+            WHEN c.carCate = '화물' THEN NULL
+            WHEN c.carCate = '승합' THEN NULL
+            WHEN c.carCate = '이륜차' THEN NULL
+            ELSE NULL
+        END AS effAllTaxi,
+        CASE 
+            WHEN c.carCate = '승용' THEN NULL
+            WHEN c.carCate = '화물' THEN ted.TRUCK_EFF_ALL_DELIVERY
+            WHEN c.carCate = '승합' THEN NULL
+            WHEN c.carCate = '이륜차' THEN med.MOTOR_EFF_ALL_DELIVERY
+            ELSE NULL
+        END AS effAllDelivery,
+        CASE 
+            WHEN c.carCate = '승용' THEN NULL
+            WHEN c.carCate = '화물' THEN ted.TRUCK_EFF_ALL_SMALL_COMPANY
+            WHEN c.carCate = '승합' THEN NULL
+            WHEN c.carCate = '이륜차' THEN NULL
+            ELSE NULL
+        END AS effAllSmallCompany,
+        CASE 
+            WHEN c.carCate = '승용' THEN ced.CAR_EFF_ALL_COMMON
+            WHEN c.carCate = '화물' THEN ted.TRUCK_EFF_ALL_COMMON
+            WHEN c.carCate = '승합' THEN bed.BUS_EFF_ALL_COMMON
+            WHEN c.carCate = '이륜차' THEN med.MOTOR_EFF_ALL_COMMON
+            ELSE NULL
+        END AS effAllCommon,
+        CASE 
+            WHEN c.carCate = '승용' THEN ced.car_eff_LEFT_all
+            WHEN c.carCate = '화물' THEN ted.truck_eff_LEFT_all
+            WHEN c.carCate = '승합' THEN bed.bus_eff_LEFT_all
+            WHEN c.carCate = '이륜차' THEN med.motor_eff_LEFT_all
+            ELSE NULL
+        END AS effLeftAll,
+        CASE 
+            WHEN c.carCate = '승용' THEN ced.CAR_EFF_LEFT_FIRST
+            WHEN c.carCate = '화물' THEN ted.TRUCK_EFF_LEFT_FIRST
+            WHEN c.carCate = '승합' THEN bed.BUS_EFF_LEFT_FIRST
+            WHEN c.carCate = '이륜차' THEN med.MOTOR_EFF_LEFT_FIRST
+            ELSE NULL
+        END AS effLeftFirst,
+        CASE 
+            WHEN c.carCate = '승용' THEN ced.CAR_EFF_LEFT_CORPORATION
+            WHEN c.carCate = '화물' THEN ted.TRUCK_EFF_LEFT_CORPORATION
+            WHEN c.carCate = '승합' THEN NULL
+            WHEN c.carCate = '이륜차' THEN med.MOTOR_EFF_LEFT_CORPORATION
+            ELSE NULL
+        END AS effLeftCorporation,
+        CASE 
+            WHEN c.carCate = '승용' THEN ced.CAR_EFF_LEFT_TAXI
+            WHEN c.carCate = '화물' THEN NULL
+            WHEN c.carCate = '승합' THEN NULL
+            WHEN c.carCate = '이륜차' THEN NULL
+            ELSE NULL
+        END AS effLeftTaxi,
+        CASE 
+            WHEN c.carCate = '승용' THEN NULL
+            WHEN c.carCate = '화물' THEN ted.TRUCK_EFF_LEFT_DELIVERY
+            WHEN c.carCate = '승합' THEN NULL
+            WHEN c.carCate = '이륜차' THEN med.MOTOR_EFF_LEFT_DELIVERY
+            ELSE NULL
+        END AS effLeftDelivery,
+        CASE 
+            WHEN c.carCate = '승용' THEN NULL
+            WHEN c.carCate = '화물' THEN ted.TRUCK_EFF_LEFT_SMALL_COMPANY
+            WHEN c.carCate = '승합' THEN NULL
+            WHEN c.carCate = '이륜차' THEN NULL
+            ELSE NULL
+        END AS effLeftSmallCompany,
+        CASE 
+            WHEN c.carCate = '승용' THEN ced.CAR_EFF_LEFT_COMMON
+            WHEN c.carCate = '화물' THEN ted.TRUCK_EFF_LEFT_COMMON
+            WHEN c.carCate = '승합' THEN bed.BUS_EFF_LEFT_COMMON
+            WHEN c.carCate = '이륜차' THEN med.MOTOR_EFF_LEFT_COMMON
+            ELSE NULL
+        END AS effLeftCommon,
+        CASE 
+            WHEN c.carCate = '승용' THEN ced.UPDATE_DT
+            WHEN c.carCate = '화물' THEN ted.UPDATE_DT
+            WHEN c.carCate = '승합' THEN bed.UPDATE_DT
+            WHEN c.carCate = '이륜차' THEN med.UPDATE_DT
+
+            ELSE NULL
+        END AS updateDt
+	</sql>
+
+	<sql id="mainRecommend">
+		SELECT DISTINCT a.carCate, a.carCateDetail, a.carBrand, a.carName, a.carPrice, a.person, a.speed,
+		               a.singleWarm, a.singleCold, a.batType, a.batVol, a.make,
+		               a.manu, a.link, a.imgURL, a.cateImgUrl, b.addr as subAddr, b.addrDetail as subAddrDetail,
+		               b.govSubsidy, b.locSubsidy, b.sumSubsidy,
+		                <if test="email != null">
+		               		d.email, b.addrDetail as memAddr
+				        </if>
+				        <if test="email == null">
+					    	b.addrDetail as memAddr
+				        </if>
+	    FROM member d,
+	            (SELECT carCate, carCateDetail, carBrand, carName, carPrice, person, speed,
+	                   singleWarm, singleCold, batType, batVol, govSubsidy, make,
+	                   manu, tbSubYN, link, imgURL, cateImgUrl
+	            FROM elecCarInfo
+	            
+	            WHERE 1=1
+	            
+		         <if test="selectedCates != null and selectedCates.size > 0">
+		          	AND carCateDetail IN
+			           <foreach collection="selectedCates" item="cate" open="(" separator="," close=")">
+			               #{cate}
+			           </foreach>
+		         </if>
+		         
+	             <if test="selectedBrands != null and selectedBrands.size > 0">
+		            AND carBrand IN
+			            <foreach collection="selectedBrands" item="brand" open="(" separator="," close=")">
+			                #{brand}
+			            </foreach>
+	             </if>
+	             
+	             <if test="selectedMinCarPrice != null and selectedMaxCarPrice != null">
+		            AND (carPrice BETWEEN #{selectedMinCarPrice} AND #{selectedMaxCarPrice}
+		                 OR carPrice IS NULL)
+	        	</if>
+	        	
+	       		 <if test="selectedSubYN != null and selectedSubYN.size > 0">
+	       		 	AND tbSubYN IN
+		       		 	<foreach collection="selectedSubYN" item="YN" open="(" separator="," close=")">
+				        	#{YN}
+			            </foreach>
+	       		 </if>
+				) a
+				
+	    LEFT JOIN subsidy b
+	    ON a.carName = b.carName
+	    WHERE 1=1
+	    <if test="email != null">
+	    	AND b.addrDetail = CASE 
+			        			WHEN REGEXP_SUBSTR(d.addr, '[^ ]+', 1, 1) = '서울'
+			        				THEN '서울특별시'
+			        			WHEN REGEXP_SUBSTR(d.addr, '[^ ]+', 1, 1) = '세종특별자치시'
+			        				THEN '세종특별자치시'			 
+			        			WHEN REGEXP_SUBSTR(d.addr, '[^ ]+', 1, 1) = '제주특별자치도'
+			        				THEN '제주특별자치도'		       				
+			    				WHEN REGEXP_SUBSTR(d.addr, '[^ ]+', 1, 1) IN ('인천', '대전', '광주', '대구', '울산', '부산')
+			    					THEN REGEXP_SUBSTR(d.addr, '[^ ]+', 1, 1) || '광역시'
+								ELSE REGEXP_SUBSTR(d.addr, '[^ ]+', 1, 2)
+		                     END
+        
+        	AND d.email = #{email}
+        </if>
+        <if test="email == null">
+	    	AND b.addrDetail = '서울특별시'
+        </if>
+	</sql>
+	
+</mapper>

@@ -1,0 +1,5 @@
+package com.eMotion.team.compare.service;
+
+public interface CarCompareService {
+
+}

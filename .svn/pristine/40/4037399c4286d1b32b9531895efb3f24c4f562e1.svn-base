@@ -1,0 +1,11 @@
+package com.eMotion.team.member.service;
+
+import com.eMotion.team.member.vo.MemberVO;
+
+public interface MemberService {
+	
+	public int registMember(MemberVO vo) throws Exception;
+	
+	public MemberVO loginMember(MemberVO vo) throws Exception;
+
+}

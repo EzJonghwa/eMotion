@@ -1,0 +1,18 @@
+package com.eMotion.team.routine.vo;
+
+import lombok.Data;
+
+@Data
+public class ElecCarInfoVO {
+	
+	private String carcate;
+	private String carcatedetail;
+	private String carbrand;
+	private String carname;
+	private int carprice;
+	private int carMpge;
+	private int carEff;
+	private int carCo2;
+	private String imgUrl;
+
+}

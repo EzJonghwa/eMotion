@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.eMotion.team.member.dao.IMemberDAO">
+
+	<insert id="registMember" parameterType="MemberVO">
+	
+		INSERT INTO member(email, passWord, nickName, useYn, kakaoYn, addr, birthyear)
+		VALUES(#{email},#{password},#{nickName},'Y','N',#{addr},#{birthYear})
+		
+	</insert>
+	
+	<select id="loginMember" parameterType="MemberVO" resultType="MemberVO">
+		
+		SELECT email
+		     , nickName
+		     , passWord
+		     , addr
+		     , birthyear
+		     , kakaoYn
+		     , profileImg
+		     , saveCar
+		     , notOwner
+		FROM member
+		WHERE useYn = 'Y'
+		AND   kakaoYn = 'N'
+		AND   email = #{email}
+		
+	</select>
+	
+	<insert id="kakaoRegistMember" parameterType="MemberVO">
+	
+		INSERT INTO member(email, passWord, nickName, useYn, kakaoYn, addr, birthyear)
+		VALUES(#{email},#{password},#{nickName},'Y','Y',#{addr},#{birthYear})
+		
+	</insert>
+	
+	<select id="kakaoLoginMember" parameterType="MemberVO" resultType="MemberVO">
+		
+		SELECT email
+		     , nickName
+		     , addr
+		     , birthyear
+		     , kakaoYn
+		     , profileImg
+		     , saveCar
+		     , notOwner
+		FROM member
+		WHERE useYn = 'Y'
+		AND   kakaoYn = 'Y'
+		AND   email = #{email}
+		
+	</select>
+	
+	<select id="emailCheck" resultType="int" parameterType="String">
+		SELECT COUNT(*) FROM member
+		WHERE email = #{email}
+	</select>
+	
+	<!-- 자동 로그인 -->
+	<update id="updateAutoLoginToken" parameterType="MemberVO">
+	    UPDATE member
+	    SET autoLoginToken = #{autoLoginToken}
+	    WHERE email = #{email}
+	</update>
+	
+	<!-- 자동 로그인 -->
+	<select id="findByAutoLoginToken" parameterType="string" resultType="MemberVO">
+		SELECT email
+		     , nickName
+		     , password
+		     , addr
+		     , birthYear
+		     , autoLoginToken
+		     , profileImg
+		     , kakaoYn
+		     , saveCar
+		     , notOwner
+		FROM member 
+		WHERE autoLoginToken = #{autoLoginToken}
+	</select>
+	
+	<update id="memExit" parameterType="String">
+		UPDATE member SET useYn = 'N'
+		WHERE email = #{email}
+	</update>
+	
+	<update id="memUpdate" parameterType="MemberVO">
+	
+		UPDATE member 
+		SET nickName = #{nickName}
+		  , addr = #{addr}
+		  , birthYear = #{birthYear}
+		WHERE email = #{email}
+		
+	</update>
+	
+	<update id="profileUpload" parameterType="MemberVO">
+	
+		UPDATE member
+		SET profileImg = #{profileImg}
+		WHERE email = #{email}
+	
+	</update>
+
+
+
+	
+</mapper>

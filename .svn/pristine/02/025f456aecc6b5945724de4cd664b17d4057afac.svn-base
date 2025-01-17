@@ -1,0 +1,88 @@
+package com.eMotion.team.routine.controller;
+
+import java.util.ArrayList;
+
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.eMotion.team.member.vo.MemberVO;
+import com.eMotion.team.routine.service.IRoutineServiceImpl;
+import com.eMotion.team.routine.vo.RoutineVO;
+
+@Controller
+public class RoutineController {
+
+	@Autowired
+	IRoutineServiceImpl Routineservice;
+	
+	@RequestMapping("/routinemain")
+	public String routineView(RoutineVO routine, HttpSession session, Model model) {
+	    try {
+	        // 세션에서 로그인 정보를 가져와 email 설정
+	        MemberVO login = (MemberVO) session.getAttribute("login");
+	        if (login != null) {
+	            String email = login.getEmail();
+	            routine.setEmail(email);
+	        }
+
+	        // 서비스 호출하여 루틴 리스트 조회
+	        ArrayList<RoutineVO> routineList = Routineservice.getRoutineList(routine);
+
+	        // 결과 확인용 로그 출력
+	        System.out.println(routineList);
+
+	        // 조회한 데이터를 Model에 추가
+	        model.addAttribute("routineList", routineList);
+
+	        // routinemain.jsp로 이동
+	        return "routine/routinemain";
+
+	    } catch (Exception e) {
+	        // 예외 처리: 에러 발생 시 에러 페이지로 이동
+	        e.printStackTrace();
+	        model.addAttribute("errorMessage", e.getMessage());
+	        return "error/errorPage";
+	    }
+	}
+
+
+	
+	@RequestMapping("/routineDetail")
+	public String routineDetailView(HttpSession session) {
+		if (session.getAttribute("login") == null) {
+			return "redirect:/loginView"; // 로그인 정보가 없으면 로그인 페이지로 리디렉션
+		}
+		return "routine/routineDetail";
+	}
+	
+//	@RequestMapping("/routineDetail")
+//	public String routineDetailView() {
+//		return "routine/routineDetail";
+//	}
+//	
+	
+	
+	
+	
+	@PostMapping("/routineWriteDo")
+	public String routineWriteDo(RoutineVO Routine) throws Exception {
+		// 게시글 작성
+		Routineservice.writeRoutine(Routine);
+		return "redirect:/routinemain";
+	}
+
+	
+	
+	
+	
+	@RequestMapping("/routineTest")
+	public String routinetest() {
+		return "routine/routinetest";
+	}
+	
+}

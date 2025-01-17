@@ -1,0 +1,40 @@
+package com.eMotion.team.board.service;
+
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import com.eMotion.team.board.dao.ICommentDAO;
+import com.eMotion.team.board.vo.CommentVO;
+
+@Service
+public class CommentServiceImpl implements CommentService {
+
+    @Autowired
+    private ICommentDAO commentDAO;
+
+    @Override
+    public void addComment(CommentVO comment) {
+        commentDAO.addComment(comment);
+    }
+
+    @Override
+    public List<CommentVO> getCommentsByBoNo(int boNo) {
+        return commentDAO.getCommentsByBoNo(boNo);
+    }
+
+    @Override
+    public void updateComment(CommentVO comment) {
+        commentDAO.updateComment(comment);
+    }
+
+    @Override
+    public void deleteComment(int coNo) {
+        commentDAO.deleteComment(coNo);
+    }
+
+    @Override
+    public boolean isCommentWriter(int coNo, String email) {
+        String writerEmail = commentDAO.getCommentWriter(coNo);
+        return writerEmail.equals(email);
+    }
+}

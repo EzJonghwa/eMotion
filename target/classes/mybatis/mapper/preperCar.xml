@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.eMotion.team.preperCar.dao.IPreperCarDAO">
+	
+	<!-- 찜목록 추가 -->
+	<insert id="insertPreper" parameterType="PreperCarVO">
+		INSERT INTO preperCar (preperId,eCarName,email)
+		VALUES (preperCar_seq.NEXTVAL, #{eCarName}, #{email})
+	</insert>
+
+	<!-- 찜목록 삭제 -->
+	<delete id="deletePreper" parameterType="PreperCarVO">
+		DELETE preperCar
+		WHERE eCarName = #{eCarName}
+		AND email = #{email}
+	</delete>
+	
+	<!-- 차량 리스트 하트에 찜목록 내용 반영 -->
+	<select id="preperList" parameterType="PreperCarVO" resultType="PreperCarVO">
+		SELECT a.preperId, a.eCarName, a.email, b.imgUrl
+		FROM preperCar a, elecCarInfo b
+		WHERE b.carName = a.eCarName
+		AND a.eCarName = #{eCarName}
+		AND a.email = #{email}
+	</select>
+
+		<!-- 찜목록에 있는 차량 리스트 -->
+	<select id="myPreperList" parameterType="String" resultType="PreperCarVO">
+		SELECT rownum, a.preperId, a.eCarName, a.email, b.*
+		FROM preperCar a, elecCarInfo b
+		WHERE b.carName = a.eCarName
+		AND a.email = #{email}
+	</select>
+
+	<!-- 특정 회원의 preperCar 리스트 차량의 데이터, 보조금, TO 불러오기 -->
+	<select id="AllAboutPreperCar" parameterType="String" resultType="PreperCarVO">
+	SELECT rownum, d.email, d.ecarName, d.addr, e.carCate, e.carCateDetail, e.carBrand, e.carPrice,
+			e.person, e.speed, e.singleWarm, e.singleCold, e.batType, e.batVol, e.govSubsidy, e.make,
+			e.manu, e.link, e.imgUrl, s.locSubsidy, s.govSubsidy, s.sumSubsidy, <include refid="longSelect"></include>
+	FROM
+	    (
+	    SELECT c.email, c.ecarname,
+	            CASE 
+	            WHEN REGEXP_SUBSTR(c.addr, '[^ ]+', 1, 1) = '서울'
+	                THEN '서울특별시'
+	            WHEN REGEXP_SUBSTR(c.addr, '[^ ]+', 1, 1) = '세종특별자치시'
+	                THEN '세종특별자치시'			 
+	            WHEN REGEXP_SUBSTR(c.addr, '[^ ]+', 1, 1) = '제주특별자치도'
+	                THEN '제주특별자치도'	
+	            WHEN REGEXP_SUBSTR(c.addr, '[^ ]+', 1, 1) IN ('인천', '대전', '광주', '대구', '울산', '부산')
+	                THEN REGEXP_SUBSTR(c.addr, '[^ ]+', 1, 1) || '광역시'
+	            ELSE REGEXP_SUBSTR(c.addr, '[^ ]+', 1, 2)
+	            END as addr
+	    FROM (
+	        SELECT a.ecarName, b.email, b.addr
+	        FROM preperCar a
+	        LEFT JOIN member b
+	        ON a.email = b.email
+	        WHERE a.email = #{email}
+	        ) c
+	    ) d
+	LEFT JOIN subsidy s
+	ON d.ecarName = s.carName
+	AND d.addr = s.addrDetail
+	LEFT JOIN elecCarInfo e
+	ON d.ecarName = e.carName
+	LEFT JOIN car_eff_daily ced
+	ON e.carCate = '승용' AND d.addr = ced.addr_detail
+	LEFT JOIN truck_eff_daily ted
+	ON e.carCate = '화물' AND d.addr = ted.addr_detail
+	LEFT JOIN bus_eff_daily bed
+	ON e.carCate = '승합' AND d.addr = bed.addr_detail
+	LEFT JOIN motor_eff_daily med
+	ON e.carCate = '이륜차' AND d.addr = med.addr_detail
+	</select>
+
+	<select id="searchCar" parameterType="SearchVO" resultType="PreperCarVO">
+		SELECT rownum, carName as eCarName, imgUrl
+		FROM elecCarInfo
+		WHERE 1=1
+		<if test="keyword != null and keyword != ''">
+	        AND UPPER(carName) LIKE '%' || UPPER(REPLACE(#{keyword}, ' ', '')) || '%'
+	        AND carName NOT IN (
+							    SELECT ecarname
+							    FROM preperCar
+							    WHERE email=#{email})
+	    </if>
+	</select>
+
+	<sql id="longSelect">
+		CASE 
+            WHEN e.carCate = '승용' THEN ced.car_eff_all_all
+            WHEN e.carCate = '화물' THEN ted.truck_eff_all_all
+            WHEN e.carCate = '승합' THEN bed.bus_eff_all_all
+            WHEN e.carCate = '이륜차' THEN med.motor_eff_all_all
+            ELSE NULL
+        END AS effAllAll,
+        CASE 
+            WHEN e.carCate = '승용' THEN ced.CAR_EFF_ALL_FIRST
+            WHEN e.carCate = '화물' THEN ted.TRUCK_EFF_ALL_FIRST
+            WHEN e.carCate = '승합' THEN bed.BUS_EFF_ALL_FIRST
+            WHEN e.carCate = '이륜차' THEN med.MOTOR_EFF_ALL_FIRST
+            ELSE NULL
+        END AS effAllFirst,
+        CASE 
+            WHEN e.carCate = '승용' THEN ced.CAR_EFF_ALL_CORPORATION
+            WHEN e.carCate = '화물' THEN ted.TRUCK_EFF_ALL_CORPORATION
+            WHEN e.carCate = '승합' THEN NULL
+            WHEN e.carCate = '이륜차' THEN med.MOTOR_EFF_ALL_CORPORATION
+            ELSE NULL
+        END AS effAllCorporation,
+        CASE 
+            WHEN e.carCate = '승용' THEN ced.CAR_EFF_ALL_TAXI
+            WHEN e.carCate = '화물' THEN NULL
+            WHEN e.carCate = '승합' THEN NULL
+            WHEN e.carCate = '이륜차' THEN NULL
+            ELSE NULL
+        END AS effAllTaxi,
+        CASE 
+            WHEN e.carCate = '승용' THEN NULL
+            WHEN e.carCate = '화물' THEN ted.TRUCK_EFF_ALL_DELIVERY
+            WHEN e.carCate = '승합' THEN NULL
+            WHEN e.carCate = '이륜차' THEN med.MOTOR_EFF_ALL_DELIVERY
+            ELSE NULL
+        END AS effAllDelivery,
+        CASE 
+            WHEN e.carCate = '승용' THEN NULL
+            WHEN e.carCate = '화물' THEN ted.TRUCK_EFF_ALL_SMALL_COMPANY
+            WHEN e.carCate = '승합' THEN NULL
+            WHEN e.carCate = '이륜차' THEN NULL
+            ELSE NULL
+        END AS effAllSmallCompany,
+        CASE 
+            WHEN e.carCate = '승용' THEN ced.CAR_EFF_ALL_COMMON
+            WHEN e.carCate = '화물' THEN ted.TRUCK_EFF_ALL_COMMON
+            WHEN e.carCate = '승합' THEN bed.BUS_EFF_ALL_COMMON
+            WHEN e.carCate = '이륜차' THEN med.MOTOR_EFF_ALL_COMMON
+            ELSE NULL
+        END AS effAllCommon,
+        CASE 
+            WHEN e.carCate = '승용' THEN ced.car_eff_LEFT_all
+            WHEN e.carCate = '화물' THEN ted.truck_eff_LEFT_all
+            WHEN e.carCate = '승합' THEN bed.bus_eff_LEFT_all
+            WHEN e.carCate = '이륜차' THEN med.motor_eff_LEFT_all
+            ELSE NULL
+        END AS effLeftAll,
+        CASE 
+            WHEN e.carCate = '승용' THEN ced.CAR_EFF_LEFT_FIRST
+            WHEN e.carCate = '화물' THEN ted.TRUCK_EFF_LEFT_FIRST
+            WHEN e.carCate = '승합' THEN bed.BUS_EFF_LEFT_FIRST
+            WHEN e.carCate = '이륜차' THEN med.MOTOR_EFF_LEFT_FIRST
+            ELSE NULL
+        END AS effLeftFirst,
+        CASE 
+            WHEN e.carCate = '승용' THEN ced.CAR_EFF_LEFT_CORPORATION
+            WHEN e.carCate = '화물' THEN ted.TRUCK_EFF_LEFT_CORPORATION
+            WHEN e.carCate = '승합' THEN NULL
+            WHEN e.carCate = '이륜차' THEN med.MOTOR_EFF_LEFT_CORPORATION
+            ELSE NULL
+        END AS effLeftCorporation,
+        CASE 
+            WHEN e.carCate = '승용' THEN ced.CAR_EFF_LEFT_TAXI
+            WHEN e.carCate = '화물' THEN NULL
+            WHEN e.carCate = '승합' THEN NULL
+            WHEN e.carCate = '이륜차' THEN NULL
+            ELSE NULL
+        END AS effLeftTaxi,
+        CASE 
+            WHEN e.carCate = '승용' THEN NULL
+            WHEN e.carCate = '화물' THEN ted.TRUCK_EFF_LEFT_DELIVERY
+            WHEN e.carCate = '승합' THEN NULL
+            WHEN e.carCate = '이륜차' THEN med.MOTOR_EFF_LEFT_DELIVERY
+            ELSE NULL
+        END AS effLeftDelivery,
+        CASE 
+            WHEN e.carCate = '승용' THEN NULL
+            WHEN e.carCate = '화물' THEN ted.TRUCK_EFF_LEFT_SMALL_COMPANY
+            WHEN e.carCate = '승합' THEN NULL
+            WHEN e.carCate = '이륜차' THEN NULL
+            ELSE NULL
+        END AS effLeftSmallCompany,
+        CASE 
+            WHEN e.carCate = '승용' THEN ced.CAR_EFF_LEFT_COMMON
+            WHEN e.carCate = '화물' THEN ted.TRUCK_EFF_LEFT_COMMON
+            WHEN e.carCate = '승합' THEN bed.BUS_EFF_LEFT_COMMON
+            WHEN e.carCate = '이륜차' THEN med.MOTOR_EFF_LEFT_COMMON
+            ELSE NULL
+        END AS effLeftCommon,
+        CASE 
+            WHEN e.carCate = '승용' THEN ced.UPDATE_DT
+            WHEN e.carCate = '화물' THEN ted.UPDATE_DT
+            WHEN e.carCate = '승합' THEN bed.UPDATE_DT
+            WHEN e.carCate = '이륜차' THEN med.UPDATE_DT
+
+            ELSE NULL
+        END AS updateDt
+	</sql>
+	
+</mapper>

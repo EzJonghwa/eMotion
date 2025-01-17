@@ -1,0 +1,44 @@
+package com.eMotion.team.board.dao;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Mapper;
+
+import com.eMotion.team.board.vo.BoardSearchVO;
+import com.eMotion.team.board.vo.BoardVO;
+import com.eMotion.team.board.vo.CommentVO;
+@Mapper
+public interface IBoardDAO {
+	
+    int getTotalRowCount(BoardSearchVO searchVO);
+    
+    List<BoardVO> getBoardList(BoardSearchVO searchVO);
+    
+    BoardVO getBoard(int boNo);
+    
+    void insertBoard(BoardVO boardVO);
+    
+    void updateBoard(BoardVO boardVO);
+    
+    void deleteBoard(int boNo);
+    
+    void increaseHit(int boNo);
+
+	boolean hasUserRecommended(int boNo, String email);
+
+	void removeRecommend(int boNo, String email);
+
+	void addRecommend(int boNo, String email);
+
+	void updateRecommendCount(int boNo);
+	
+	BoardVO getPrevPost(int boNo);
+	
+	BoardVO getNextPost(int boNo);
+
+	List<CommentVO> getCommentsByBoardNo(int boNo);
+	
+	
+	
+	
+}

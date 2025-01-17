@@ -1,0 +1,29 @@
+package com.eMotion.team.recommend.service;
+
+import java.util.ArrayList;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.eMotion.team.recommend.dao.IRecommendDAO;
+import com.eMotion.team.recommend.vo.RecommendVO;
+import com.eMotion.team.recommend.vo.SearchVO;
+
+@Service
+public class RecommendServiceImpl implements IRecommendService{
+
+	@Autowired
+	IRecommendDAO dao;
+	
+	@Override
+	public ArrayList<RecommendVO> getFilteredList(SearchVO searchVO){
+		ArrayList<RecommendVO> filteredList = dao.getFilteredList(searchVO);
+		return filteredList;
+	}
+	@Override
+	public int getCount(SearchVO searchVO) {
+		int resultCount = dao.getCount(searchVO);
+		return resultCount;
+	}
+
+}

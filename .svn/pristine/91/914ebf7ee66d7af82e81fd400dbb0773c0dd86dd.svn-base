@@ -1,0 +1,55 @@
+package com.eMotion.team.car.service;
+
+import java.util.ArrayList;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.eMotion.team.car.dao.ICarDAO;
+import com.eMotion.team.car.vo.CarVO;
+
+@Service("CarService")
+public class CarServiceImpl implements CarService{
+	
+	@Autowired
+	ICarDAO dao;
+	
+	@Override
+	public ArrayList<CarVO> getCarList(CarVO car){
+		
+		// carType에 따라 테이블 이름 설정
+        String tableName = null;
+        if ("haveecar".equals(car.getCarType())) {
+            tableName = "eleccarinfo";
+        } else if ("havegcar".equals(car.getCarType())) {
+            tableName = "gascarinfo";
+        } else {
+            throw new IllegalArgumentException("유효하지 않은 차량 유형입니다: " + car.getCarType());
+        }
+
+        // 테이블 이름을 CarVO에 저장 (MyBatis에서 동적으로 사용)
+        car.setCarType(tableName);
+		
+		return dao.getCarList(car);
+	}
+	
+	@Override
+	public void saveCar(CarVO car) throws Exception {
+		
+		int result = 0;
+
+		if ("haveecar".equals(car.getCarType())) {
+			result = dao.eSaveCar(car);
+        } else if ("havegcar".equals(car.getCarType())) {
+        	result = dao.gSaveCar(car);
+        } else {
+            throw new IllegalArgumentException("유효하지 않은 차량 유형입니다: " + car.getCarType());
+        }
+		
+		if(result == 0) {
+			throw new Exception();
+		}
+	}
+	
+
+}

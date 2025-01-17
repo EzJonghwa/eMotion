@@ -1,0 +1,36 @@
+package com.eMotion.team.routine.dao;
+
+import java.util.ArrayList;
+
+import org.apache.ibatis.annotations.Mapper;
+
+import com.eMotion.team.routine.vo.ElecCarInfoVO;
+import com.eMotion.team.routine.vo.GasCarInfoVO;
+import com.eMotion.team.routine.vo.RoutineVO;
+
+
+@Mapper
+public interface IRoutineDAO {
+	//루틴가져오기
+	public ArrayList<RoutineVO> getRoutineList(RoutineVO Routine);
+	
+	// 루틴 상세내용 가져오기 
+    public RoutineVO getRoutine(int routineNo);
+    
+    // 루틴 작성 
+    public int writeRoutine(RoutineVO Routine);
+    
+    // 루틴 수정
+    public int updateRoutine(RoutineVO Routine);
+    
+    // 루틴 삭제
+    public int deleteRoutine(int routineNo); 
+    
+    // 내연기관 자동차  가져어기
+    public ArrayList<GasCarInfoVO> getGascarList(GasCarInfoVO gascarinfo);
+    
+    // 전기 자동차  가져오기
+    public ArrayList<ElecCarInfoVO> getEleccarList(ElecCarInfoVO eleccarinfo);
+    
+
+}

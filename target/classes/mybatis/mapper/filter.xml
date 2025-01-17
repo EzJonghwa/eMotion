@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.eMotion.team.recommend.dao.IFilterDAO">
+
+	<select id="getPassengerCate" resultType="FilterVO">
+		SELECT carCateDetail, cateImgUrl
+		FROM elecCarInfo
+		WHERE carCate = '승용'
+		GROUP BY carCateDetail, cateImgUrl
+	</select>
+	
+	<select id="getFreightCate" resultType="FilterVO">
+		SELECT carCateDetail, cateImgUrl
+		FROM elecCarInfo
+		WHERE carCate = '화물'
+		GROUP BY carCateDetail, cateImgUrl
+	</select>
+
+	<select id="getVansCate" resultType="FilterVO">
+		SELECT carCateDetail, cateImgUrl
+		FROM elecCarInfo
+		WHERE carCate = '승합'
+		GROUP BY carCateDetail, cateImgUrl
+	</select>	
+
+	<select id="getMotorsCate" resultType="FilterVO">
+		SELECT carCateDetail, cateImgUrl
+		FROM elecCarInfo
+		WHERE carCate = '이륜차'
+		GROUP BY carCateDetail, cateImgUrl
+	</select>
+	
+	<select id="searchCarBrand" parameterType="String" resultType="FilterVO">
+		SELECT carBrand, brandImgUrl
+		FROM elecCarInfo
+		WHERE 1=1
+		<if test="keyword != null and keyword != ''">
+	        AND carBrand LIKE '%' || REPLACE(#{keyword}, ' ', '') || '%'
+	    </if>
+		GROUP BY carBrand, brandImgUrl
+		ORDER BY carBrand
+	</select>
+
+</mapper>

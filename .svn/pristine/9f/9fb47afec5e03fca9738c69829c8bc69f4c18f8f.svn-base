@@ -1,0 +1,13 @@
+package com.eMotion.team.member.vo;
+
+import lombok.Data;
+
+@Data
+public class MemberVO {
+	
+	public String email;
+	public String password;
+	public String nickName;
+	public String addr;
+	public String birthYear;
+}

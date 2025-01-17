@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.eMotion.team.car.dao.ICarDAO">
+
+	<select id="getCarList" resultType="CarVO" parameterType="CarVO">
+	
+		SELECT carname
+		FROM ${carType}
+		WHERE UPPER(carname) LIKE UPPER('%' || #{keyword} || '%')
+		
+	</select>
+	
+	<insert id="eSaveCar" parameterType="CarVO">
+	
+		INSERT INTO ${carType}(ecarname, email, ecarbuydate)
+		VALUES(#{carName},#{email},#{carBuyDate})
+		
+	</insert>
+	
+	<insert id="gSaveCar" parameterType="CarVO">
+	
+		INSERT INTO ${carType}(gcarname, email, gcarbuydate)
+		VALUES(#{carName},#{email},#{carBuyDate})
+		
+	</insert>
+	
+	
+	
+	
+
+	
+</mapper>

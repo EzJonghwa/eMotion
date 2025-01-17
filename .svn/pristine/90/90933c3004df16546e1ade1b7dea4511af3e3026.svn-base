@@ -1,0 +1,640 @@
+<%
+  /* ================================================================= 
+   * 작성일     : 2024. 12. 17. 
+   * 작성자     : 서원빈
+   * 상세설명  : 
+   * 화면ID  :
+   * ================================================================= 
+   * 수정일         작성자             내용      
+   * ----------------------------------------------------------------------- 
+   * ================================================================= 
+   */
+%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>차량 검색 필터</title>
+<!-- 부트스트랩 CSS -->
+<!-- 프레임 워크 jquery and bootStrap-->
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+	rel="stylesheet"
+	integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+	crossorigin="anonymous">
+<script
+	src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+	integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+	crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+<!-- 프레임 워크 jquery and bootStrap-->
+<style>
+
+/* body안의 메인 컨텐츠 가운데에 위치 */
+body {
+	display: flex;
+	justify-content: center;
+	background-color: #B7B7B7;
+}
+::-webkit-scrollbar {
+	display: none;
+}
+/* 스크롤바 제거를 위한 css */
+.cont::-webkit-scrollbar {
+	display: none;
+}
+/* main 컨텐츠 css   */
+.cont {
+	background-color: white;
+	width: 768px;
+	height: 120vh;
+	box-shadow: 0 5px 8px rgba(57, 57, 57, 0.16), 0 5px 8px
+		rgba(57, 57, 57, 0.16);
+	-ms-overflow-style: none;
+	/* 인터넷 익스플로러 */
+	scrollbar-width: none;
+	/* 파이어폭스 */
+}
+.main{
+	height: 100%;
+}
+
+/* 그리드 테스트용 brd 추가 */
+.brd {
+	border: 1px dotted;
+}
+/* 그리드 테스트용 brd 추가 */
+
+/* 로고 디자인*/
+.md_logo {
+	font-size: 3rem;
+	/* 화면 너비에 비례한 폰트 크기 */
+	font-weight: 600;
+	color: #828282;
+}
+
+/* 부트에서 정해주는 버튼들 색상 변경 */
+.btn-primary {
+	font-weight: 1000;
+	background-color: #50B0FF;
+	border: none;
+}
+
+.btn-danger {
+	font-weight: 1000;
+	background-color: #FF4B5D;
+	border: none;
+}
+
+.btn-warning {
+	font-weight: 1000;
+	background-color: #FFD52D;
+	border: none;
+}
+
+.btn-danger:hover {
+	background-color: #fa1b31;
+}
+
+.btn-warning:hover {
+	background-color: #facb0c;
+}
+
+.btn-primary:hover {
+	background-color: #37a1f8;
+}
+/* 부트에서 정해주는 버튼들 색상 변경 */
+
+/* HEADER 와 메인 사이의 파란색 줄 */
+.bot_brd {
+	box-shadow: 0px 5px 0px 0px #d6edff;
+}
+
+/* h2 사이즈 폰트 설정 */
+h2 {
+	color: #333;
+}
+
+/* h2 사이즈 폰트 설정 */
+
+
+.filter-container {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+}
+
+/* 메인필터의 label css 설정 */
+.filter-container label {
+	display: inline-block;
+	padding: 8px 12px;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+	cursor: pointer;
+	user-select: none;
+}
+/* 메인필터의 input css 설정 */
+.filter-container input[type="checkbox"] {
+	display: none;
+}
+/* 메인필터의 input css 설정 */
+.filter-container input[type="checkbox"]:checked+label {
+	background-color: #007BFF;
+	color: white;
+	border-color: #007BFF;
+}
+
+/* 가격 설정용 슬라이드바 css */
+.slideContainer {
+	position: relative;
+	width: 100%;
+	margin: 20px 0;
+}
+
+.slideFixedBar {
+	position: absolute;
+	height: 4px;
+	width: 100%; /* 고정된 바는 전체 너비를 가집니다 */
+	background-color: #e0e0e0; /* 고정된 바의 색상 */
+	border-radius: 10px;
+	z-index: 1; /* 슬라이더 바 뒤에 배치 */
+	top: 50%;
+	transform: translateY(-50%);
+}
+
+.slideContainerInner {
+	position: absolute;
+	height: 4px;
+	/* background-color: #b0b0b0; */
+	background-color: blue;
+	border-radius: 10px;
+	top: 50%;
+	transform: translateY(-50%);
+}
+
+.slideRange {
+	position: relative;
+	height: 30px;
+}
+
+.slideMin, .slideMax {
+	position: absolute;
+	width: 100%;
+	-webkit-appearance: none;
+	background: none;
+	pointer-events: none;
+}
+
+.slideMin::-webkit-slider-thumb, .slideMax::-webkit-slider-thumb {
+	position: relative;
+	z-index: 3;
+	transform: translateY(30%);
+	-webkit-appearance: none;
+	height: 20px;
+	width: 20px;
+	border-radius: 50%;
+	background-color: white;
+	border: 2px solid #b0b0b0;
+	pointer-events: auto;
+	cursor: pointer;
+}
+/* 가격 설정용 슬라이드바 css */
+
+/* 가격 설정 슬라이드의 가격값 표시*/
+.valueDisplay {
+	text-align: center;
+	margin-top: 10px;
+	font-size: 1rem;
+}
+/* 브랜드 선택 컨테이너 사이즈*/
+.container-size{
+height:10vh;
+}
+.container-size::-webkit-scrollbar {
+	display: none;
+}
+</style>
+
+<style>
+/* 오프 캔버스 관련 css */
+.offmain {
+	position: relative;
+	/* Offcanvas의 기준 컨테이너로 설정 */
+}
+
+.offcanvas-custom {
+	position: absolute;
+	/* 부모 요소를 기준으로 배치 */
+	top: 0;
+	right: 0;
+	/* 오른쪽에서 시작 */
+	width: 80%;
+	height: 100%;
+	transform: translateX(100%);
+	/* 기본적으로 숨김 상태 */
+	transition: transform 0.3s ease-in-out;
+	background-color: #f8f9fa;
+	z-index: 1050;
+	/* 배경보다 위에 배치 */
+}
+
+.offcanvas-custom.show {
+	transform: translateX(0);
+	/* 보이는 상태 */
+}
+
+.offcanvas-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.5);
+	/* 어두운 반투명 배경 */
+	opacity: 0;
+	visibility: hidden;
+	transition: opacity 0.3s ease-in-out;
+	z-index: 1040;
+	/* Offcanvas 아래 배치 */
+}
+
+.offcanvas-overlay.show {
+	opacity: 1;
+	visibility: visible;
+	/* 배경 활성화 */
+}
+</style>
+</head>
+
+<body>
+
+    <div class="cont"><div class=" main offmain overflow-y-auto">
+        <div class="mainhead bot_brd mb-3 p-2" style="width: 100%;">
+
+
+            <div class="row mt-5 mx-3">
+                <div class="col d-flex align-items-center justify-content-between">
+                    <div style="cursor: pointer;" onclick="location.href='#';">
+                        <h1 class="md_logo" style="text-align: center;">
+                            <span style="color: #FFD050;">e</span><span style="color: #50B0FF;">Motion</span>
+                        </h1>
+                    </div>
+                    <i class="bi bi-list" style="font-size: 50px; cursor: pointer;" id="toggleOffcanvas"></i>
+                </div>
+           <!-- Overlay -->
+				<div class="offcanvas-overlay" id="offcanvasOverlay"></div>
+
+				<!-- Offcanvas -->
+				<div class="offcanvas-custom brd" id="customOffcanvas">
+					<div class="p-3">
+						<div class="row d-flex align-items-start p-3">
+							<div class="col">
+								<h3>마이페이지</h3>
+							</div>
+							<div class="col d-flex justify-content-end">
+								<button type="button" class="btn-close align-self-center"
+									class="btn-close fs-3" id="closeOffcanvas"></button>
+							</div>
+
+
+						</div>
+
+						<c:if test="${sessionScope.login != null }">
+							<div class="row px-3 py-5 d-flex align-items-center">
+								<div class="brdimg"
+									style="width: 130px; height: 130px; border-radius: 50%; overflow: hidden; padding: 0;">
+
+									<c:if test="${sessionScope.login.profileImg == null}">
+										<img
+											src="${pageContext.request.contextPath}/assets/img/non.png"
+											id="myImage" class="img-fluid shadow-sm w-100 h-100"
+											style="cursor: default;">
+									</c:if>
+									<c:if test="${sessionScope.login.profileImg != null}">
+										<img
+											src="${pageContext.request.contextPath}${sessionScope.login.profileImg}"
+											id="myImage" class="img-fluid shadow-sm w-100 h-100"
+											style="cursor: default;">
+									</c:if>
+
+								</div>
+								<div class="col fs-4">
+									<span>${sessionScope.login.nickName} <br> <c:if
+											test="${sessionScope.login.kakaoYn eq 'N' }">
+									${sessionScope.login.email}(이메일계정)
+								</c:if> <c:if test="${sessionScope.login.kakaoYn eq 'Y' }">
+									${sessionScope.login.email}(카카오계정)
+								</c:if>
+									</span> <br> <br>
+									<!-- 쪽지 버튼 추가 -->
+									<c:if test="${sessionScope.login != null}">
+										<a
+											href="${pageContext.request.contextPath}/messagesViewDo?receiverEmail=${sessionScope.login.email}"
+											class="btn btn-primary"> <i class="bi bi-chat-dots"></i>
+											쪽지함
+										</a>
+										<span id="messageBadge"></span>
+										<button id="subscribeBtn">푸시 알람 구독하기!</button>
+										<input type="hidden" id="userId"
+											value="${sessionScope.login.email}">
+										<input type="hidden" value="${vapidPublicKey}" id="key">
+
+									</c:if>
+									<br> <br> <a
+										href="${pageContext.request.contextPath}/logoutDo">로그아웃</a>
+								</div>
+							</div>
+						</c:if>
+						<c:if test="${sessionScope.login == null }">
+							<div class="row px-3 py-5 d-flex align-items-center">
+								<div class="brdimg"
+									style="width: 130px; height: 130px; border-radius: 50%; overflow: hidden; padding: 0;">
+
+									<c:if test="${sessionScope.login.profileImg == null}">
+										<img
+											src="${pageContext.request.contextPath}/assets/img/loginImg.png"
+											id="myImage" class="img-fluid shadow-sm w-100 h-100"
+											style="cursor: default;">
+									</c:if>
+
+								</div>
+								<div class="col fs-4">
+									<span>로그인 하신후 <br>이용하실수 있는 서비스입니다.
+									</span> <br> <br> <a
+										href="${pageContext.request.contextPath}/loginView">로그인하기</a>
+								</div>
+							</div>
+						</c:if>
+
+
+						<div class="row mb-5 px-3">
+							<hr style="border-top: 2px dashed black;">
+						</div>
+
+						<c:if test="${sessionScope.login == null }">
+
+						</c:if>
+						<c:if test="${sessionScope.login != null }">
+							<div class="row px-3 py-5" style="cursor: pointer;">
+								<div class="col ">
+									<c:if test="${sessionScope.login.kakaoYn eq 'N' }">
+										<span class="fs-3"
+											onclick="location.href='${pageContext.request.contextPath}/mypageRewrite'">개인정보
+											수정</span>
+									</c:if>
+									<c:if test="${sessionScope.login.kakaoYn eq 'Y' }">
+										<span class="fs-3"
+											onclick="location.href='${pageContext.request.contextPath}/kakaomypageRewrite'">개인정보
+											수정</span>
+									</c:if>
+								</div>
+								<div class="col d-flex justify-content-end">
+									<span class="fs-2">></span>
+								</div>
+								<hr>
+							</div>
+							<div class="row px-3	py-5" style="cursor: pointer;"
+								onclick="location.href='${pageContext.request.contextPath}/saveListView'">
+								<div class="col">
+									<span class="fs-3">보유 차량 정보</span>
+								</div>
+								<div class="col d-flex justify-content-end">
+									<span class="fs-2">></span>
+								</div>
+								<hr>
+							</div>
+							<div class="row px-3 py-5"  style="cursor: pointer;"
+								onclick="location.href='${pageContext.request.contextPath}/myLikeList'">
+								<div class="col ">
+									<span class="fs-3">저장한 전기차 목록</span>
+								</div>
+								<div class="col d-flex justify-content-end">
+									<span class="fs-2">></span>
+								</div>
+								<hr>
+							</div>
+						</c:if>
+					</div>
+				</div>
+            </div>
+
+
+
+        </div>
+		<div class="mainfilterpage px-2">
+			<!-- 버튼 -->
+
+			<form id="vehicleFilterForm" action="/getSelect" method="POST">
+				<!--전기차 테이블-->
+				<div class=" p-2">
+					<div class="p-2">전기차 구매추천 가이드</div>
+					<!-- 차종 -->
+					<div class="accordion" id="accordionExample">
+						<div class="accordion-item">
+							<h2 class="accordion-header">
+								<button class="accordion-button collapsed" type="button"
+									data-bs-toggle="collapse" data-bs-target="#collapseOne"
+									aria-expanded="false" aria-controls="collapseOne">차종</button>
+							</h2>
+							<div id="collapseOne" class="accordion-collapse collapse"
+								data-bs-parent="#accordionExample">
+								<div class="accordion-body">
+
+									<div class="filter-container">
+										<h2>승용</h2>
+										<br>
+										<c:forEach var="item" items="${passCate}">
+											<input type="checkbox" id="${item.carCateDetail}"
+												name="selectedCates" value="${item.carCateDetail}">
+											<label for="${item.carCateDetail}"><img
+												src="resources/assets/img/carIcon/${item.cateImgUrl}"
+												alt="Image" width="20" />${item.carCateDetail}</label>
+										</c:forEach>
+									</div>
+									<div class="filter-container">
+										<h2>화물</h2>
+										<br>
+										<c:forEach var="item" items="${freiCate}">
+											<input type="checkbox" id="${item.carCateDetail}"
+												name="selectedCates" value="${item.carCateDetail}">
+											<label for="${item.carCateDetail}"><img
+												src="resources/assets/img/carIcon/${item.cateImgUrl}"
+												alt="Image" width="20" />${item.carCateDetail}</label>
+										</c:forEach>
+									</div>
+									<div class="filter-container">
+										<h2>승합</h2>
+										<br>
+										<c:forEach var="item" items="${vansCate}">
+											<input type="checkbox" id="${item.carCateDetail}"
+												name="selectedCates" value="${item.carCateDetail}">
+											<label for="${item.carCateDetail}"><img
+												src="resources/assets/img/carIcon/${item.cateImgUrl}"
+												alt="Image" width="20" />${item.carCateDetail}</label>
+										</c:forEach>
+									</div>
+									<div class="filter-container">
+										<h2>이륜</h2>
+										<br>
+										<c:forEach var="item" items="${motoCate}">
+											<input type="checkbox" id="${item.carCateDetail}"
+												name="selectedCates" value="${item.carCateDetail}">
+											<label for="${item.carCateDetail}"><img
+												src="resources/assets/img/carIcon/${item.cateImgUrl}"
+												alt="Image" width="20" />${item.carCateDetail}</label>
+										</c:forEach>
+									</div>
+								</div>
+							</div>
+						</div>
+
+
+						<!-- 브랜드 -->
+						<div class="accordion" id="accordionExample">
+							<div class="accordion-item">
+								<h2 class="accordion-header">
+									<button class="accordion-button collapsed" type="button"
+										data-bs-toggle="collapse" data-bs-target="#collapseTwo"
+										aria-expanded="false" aria-controls="collapseTwo">브랜드</button>
+								</h2>
+								<div id="collapseTwo" class="accordion-collapse collapse"
+									data-bs-parent="#accordionExample">
+									<div class="accordion-body">
+
+										<div class="form-check d-flex justify-content-center py-1"
+											style="border: 1px solid; width: 75px; border-radius: 5px;">
+											<input class="form-check-input" type="checkbox" value="전체"
+												id="checkAll"> <label class="form-check-label"
+												for="checkAll"> 전체 </label>
+										</div>
+
+										<div class="container-size overflow-y-auto" id="tagContainer">
+											<!-- brandTag 추가 -->
+										</div>
+
+
+
+										<div class="input-group mb-3">
+											<input type="text" class="form-control"
+												placeholder="직접 검색하여 차량을 선택해 보세요."
+												aria-label="Recipient's username"
+												aria-describedby="button-addon2" id="searchBrand"
+												name="searchBrand">
+											<button class="btn btn-outline-secondar"
+												type="button" id="button-addon2">검색</button>
+										</div>
+										<div style="overflow: scroll; height: 200px;">
+											<table class="table table-sm"
+												style="text-align: center;" id="carBrandTable">
+												<!-- 스크립트 autocompleteBrand.로 테이블 출력 -->
+											</table>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- 예산 -->
+						<div class="accordion" id="accordionExample">
+							<div class="accordion-item">
+								<h2 class="accordion-header">
+									<button class="accordion-button collapsed" type="button"
+										data-bs-toggle="collapse" data-bs-target="#collapseThree"
+										aria-expanded="false" aria-controls="collapseThree">예산
+									</button>
+								</h2>
+								<div id="collapseThree" class="accordion-collapse collapse"
+									data-bs-parent="#accordionExample">
+									<div class="accordion-body">
+										<div class="slideContainer">
+											<div class="slideFixedBar"></div>
+											<div class="slideContainerInner" id="slideContainerInner"></div>
+											<div class="slideRange">
+												<input type="range" class="slideMin" id="slideMin"
+													name="selectedMinCarPrice" min="0" max="100000000"
+													step="5000000" value="0"> <input type="range"
+													class="slideMax" id="slideMax" name="selectedMaxCarPrice"
+													min="0" max="900000000" step="5000000" value="900000000">
+											</div>
+
+
+
+										</div>
+										<div class="valueDisplay">
+											<div class="row px-2">
+												<div class="col" id="minValueDisplay"
+													style="border: 1px solid;"></div>
+												<div class="col" id="maxValueDisplay"
+													style="border: 1px solid;"></div>
+											</div>
+										</div>
+
+									</div>
+								</div>
+							</div>
+						</div>
+						<!-- 보조금 -->
+						<div class="accordion" id="accordionExample">
+							<div class="accordion-item">
+								<h2 class="accordion-header">
+									<button class="accordion-button collapsed" type="button"
+										data-bs-toggle="collapse" data-bs-target="#collapseFour"
+										aria-expanded="false" aria-controls="collapseFour">보조금
+									</button>
+								</h2>
+								<div id="collapseFour" class="accordion-collapse collapse"
+									data-bs-parent="#accordionExample">
+									<div class="accordion-body d-flex justify-content-center">
+										<input type="checkbox" id="subAll" name="selectedSubYN"
+											value="Y,N" checked> <label for="subAll"><button
+												type="button" class="btn btn-warning mx-2" id="subAll">무관</button></label>
+										<input type="checkbox" id="subYes" name="selectedSubYN"
+											value="Y"> <label for="subYes"><button
+												type="button" class="btn btn-warning mx-2" id="subYes">지원</button></label>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class=" px-2 d-flex justify-content-center;">
+					<button class="btn btn-primary" type="button"
+						onclick="location.href='/filter'">초기화</button>
+					<button type="submit" id="nowCnt" class="btn btn-primary">검색${nowCount}건</button>
+				</div>
+			</form>
+		</div>
+	</div>
+	</div>
+	<input type="hidden" id="searchCarBrand"
+		value='<c:out value="${brandList}" />' />
+
+        <script>
+            const toggleButton = document.getElementById('toggleOffcanvas');
+            const closeButton = document.getElementById('closeOffcanvas');
+            const offcanvas = document.getElementById('customOffcanvas');
+            const overlay = document.getElementById('offcanvasOverlay');
+    
+            // Offcanvas 열기
+            toggleButton.addEventListener('click', () => {
+                offcanvas.classList.add('show');
+                overlay.classList.add('show');
+            });
+    
+            // Offcanvas 닫기
+            const closeOffcanvas = () => {
+                offcanvas.classList.remove('show');
+                overlay.classList.remove('show');
+            };
+            closeButton.addEventListener('click', closeOffcanvas);
+            overlay.addEventListener('click', closeOffcanvas); // 배경 클릭 시 닫기
+        </script>
+	<script src="/resources/js/filter.js"></script>
+
+</body>
+</html>

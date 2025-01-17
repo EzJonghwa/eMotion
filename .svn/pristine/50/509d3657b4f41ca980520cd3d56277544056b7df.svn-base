@@ -1,0 +1,18 @@
+const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]')
+const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl))
+
+$(document).ready(function(){
+    $(".card").each(function(){
+        // 현재 카드의 imgurl 값 가져오기
+        const imgUrl = $(this).find('input[name="imgUrl"]').val();
+        console.log("imgUrl:", imgUrl);
+
+        // 이미지 경로 생성
+        const encodedPath = imgUrl;
+        const decodedPath = decodeURIComponent(encodedPath);
+
+        // 현재 카드의 img 태그에 경로 설정
+        $(this).find("img").attr("src", decodedPath);
+        console.log("Decoded Path:", decodedPath);
+    });
+});

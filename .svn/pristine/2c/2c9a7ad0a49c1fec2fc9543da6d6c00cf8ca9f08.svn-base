@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.eMotion.team.chart.dao.IChartDAO">
+	
+	<select id="getChartData" parameterType="ChartVO" resultType="ChartVO">
+	SELECT hours
+	<![CDATA[
+     , CASE WHEN use_ratio >= 75 THEN '매우혼잡'
+            WHEN use_ratio < 75  AND use_ratio >= 50 THEN '혼잡'
+            WHEN use_ratio < 50 THEN '원활'
+            ELSE '없음'
+    ]]>
+       END ratio
+     , use_ratio
+	FROM (
+	        SELECT TO_CHAR(updatetime,'HH24') as hours
+	             , ROUND(sum(decode(chgerstat, '3', 1, 0)) / NULLIF(sum(decode(chgerstat, '3', 1, 0)) + sum(decode(chgerstat, '3', 0, 1)), 0) * 100, 2) AS use_ratio
+	             , ROUND(sum(decode(chgerstat, '3', 0, 1)) / NULLIF(sum(decode(chgerstat, '3', 1, 0)) + sum(decode(chgerstat, '3', 0, 1)), 0) * 100, 2) AS not_use_ratio
+	        FROM chgerdata
+	        WHERE statid = #{statid}
+	        AND TO_CHAR(updatetime,'YYYYMMDD') IN ((SELECT TO_CHAR(TRUNC(SYSDATE, 'IW') + TO_NUMBER(#{day}) - (LEVEL - 1) * 7, 'YYYYMMDD')
+	                                                FROM DUAL
+	                                                <![CDATA[CONNECT BY LEVEL <= 4))]]>
+	        GROUP BY TO_CHAR(updatetime,'HH24')
+	        ORDER BY to_number(hours)
+	      )
+	
+	  
+	</select>
+	
+</mapper>

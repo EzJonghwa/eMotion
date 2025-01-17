@@ -1,0 +1,114 @@
+package com.eMotion.team.map.controller;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.eMotion.team.map.service.ChargingStationService;
+import com.eMotion.team.map.service.ServiceCenterService;
+import com.eMotion.team.map.vo.ChargingStationVO;
+import com.eMotion.team.map.vo.ServiceCenterVO;
+
+@Controller
+public class Test {
+
+    @Autowired
+    private ServiceCenterService servicecenterService;
+    
+    @Autowired
+    private ChargingStationService chargingStationService;
+
+    @GetMapping("/service-centers")
+    @ResponseBody
+    public List<ServiceCenterVO> getServiceCenters() {
+        return servicecenterService.getServiceCenter();  
+    }
+    
+    @GetMapping("/charging-station")
+    @ResponseBody
+    public List<ChargingStationVO> getChargingStation() {
+    	
+    	return chargingStationService.getChargingStation();
+
+    }
+    
+    @RequestMapping("/map")
+    public String mapView(Model model) {
+        // DB에서 ChargingStation 데이터를 가져옴
+        List<ChargingStationVO> chargingStations = chargingStationService.getChargingStation();
+        
+        // ChargingStationVO 데이터를 StationPoint로 변환
+        List<StationPoint> stationPoints = new ArrayList<>();
+        
+        for (ChargingStationVO station : chargingStations) {
+            // 각 ChargingStationVO에서 필요한 값을 StationPoint로 변환
+            StationPoint point = new StationPoint(
+                station.getStatnm(),      // 예: "연구단지 종합운동장"
+                station.getLat(),  // 예: 36.38421353968088
+                station.getLon(), // 예: 127.35649134027638
+                0                        // 예: distance, 이 부분은 적절하게 계산하거나 DB에서 추가로 처리
+            );
+            stationPoints.add(point);
+        }
+        
+        // 변환된 데이터를 JSP로 전달
+        model.addAttribute("StationPoints", stationPoints);
+        
+        return "map/map";  // map.jsp로 포워딩
+    }
+    
+    public static class StationPoint {
+        private String name;
+        private double lat;
+        private double lon;
+        private double distance;
+
+        public StationPoint(String name, double lat, double lon, double distance) {
+            this.name = name;
+            this.lat = lat;
+            this.lon = lon;
+            this.distance = distance;
+        }
+
+        // Getter, Setter
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public double getLat() {
+            return lat;
+        }
+
+        public void setLat(double lat) {
+            this.lat = lat;
+        }
+
+        public double getLon() {
+            return lon;
+        }
+
+        public void setLon(double lon) {
+            this.lon = lon;
+        }
+
+        public double getDistance() {
+            return distance;
+        }
+
+        public void setDistance(double distance) {
+            this.distance = distance;
+        }
+    }
+
+}

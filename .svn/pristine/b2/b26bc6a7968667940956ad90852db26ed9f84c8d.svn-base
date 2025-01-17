@@ -1,0 +1,12 @@
+package com.eMotion.team.routine.controller;
+
+import org.springframework.web.bind.annotation.RequestMapping;
+
+public class RoutineController {
+
+	
+	@RequestMapping("/routinemain")
+	public String routineView() {
+		return "routine/routinemain";
+	}
+}

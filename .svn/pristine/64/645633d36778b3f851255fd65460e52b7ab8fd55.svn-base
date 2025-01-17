@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eMotion.team.map.dao.ChargingStationDAO">
+
+	<resultMap id="ChargingStationResultMap" type="ChargingStationVO">
+	    <result property="name" column="name"/>
+	    <result property="noor_lat" column="noor_lat"/>
+	    <result property="noor_lon" column="noor_lon"/>
+	</resultMap>
+	
+	<select id="getChargingStation" resultMap="ChargingStationResultMap">
+	    SELECT name, noor_lat, noor_lon
+	    FROM tb_station
+	    WHERE upper_addr_name LIKE '%대전%'
+	</select>
+
+
+
+
+</mapper>

@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.eMotion.team.routine.dao.IRoutineDAO">
+
+	<select id="getRoutineList" resultType="RoutineVO"
+		parameterType="RoutineVO">
+
+		SELECT
+		routine_no,email,rouTitle,rouDetail,rouDay,startLoc,startRegion,endLoc,endRegion,totalDis,roundTripYn,gasCar,eleCar,createDt
+		FROM routine
+		where email=#{email}
+		order by 14 DESC
+
+	</select>
+
+	<select id="getRoutine" resultType="RoutineVO">
+
+		SELECT
+		routine_no,email,rouTitle,rouDetail,rouDay,startLoc,startRegion,endLoc,endRegion,totalDis,roundTripYn,gasCar,eleCar,createDt
+		FROM routine
+		WHERE routine_no=#{routineNo}
+
+	</select>
+
+	<insert id="writeRoutine" parameterType="RoutineVO">
+		INSERT INTO routine
+		(routine_no,email,rouTitle,rouDetail,rouDay,startLoc,startRegion,endLoc,endRegion,totalDis,roundTripYn,gasCar,eleCar)
+		VALUES
+		(routine_seq.NEXTVAL,#{email},#{rouTitle},#{rouDetail},#{rouDay},#{startLoc},#{startRegion},#{endLoc},#{endRegion},#{totalDis},#{roundTripYn},#{gasCar},#{eleCar})
+	</insert>
+
+	<update id="RewriteRoutine" parameterType="RoutineVO">
+    UPDATE routine SET
+    rouTitle = #{rouTitle},
+    rouDetail = #{rouDetail},
+    rouDay = #{rouDay},
+    startLoc = #{startLoc},
+    startRegion = #{startRegion},
+    endLoc = #{endLoc},  
+    endRegion = #{endRegion}, 
+    totalDis = #{totalDis},
+    roundTripYn = #{roundTripYn},
+    gasCar = #{gasCar},
+    eleCar = #{eleCar},
+    createDt = SYSDATE
+    WHERE routine_no = #{routineNo} AND email = #{email}
+</update>
+	<!-- <select id="getGascarList" parameterType="RoutineVO" resultType="GasCarVO"> 
+		SELECT carbrand, carname, carcate, carcatedetail, carimg,careff,carco2 FROM 
+		GASCARINFO WHERE carname = (SELECT gasCar FROM routine WHERE email=#{email} 
+		and routine_no=#{routineNo}) </select> -->
+
+	<!-- <select id="getEleccarList" parameterType="RoutineVO" resultType="ElecCarVO" 
+		> SELECT carbrand, carname, carcate, carcatedetail, imgurl,carmpge, careff,carco2 
+		FROM ELECCARINFO WHERE carname = (SELECT eleCar FROM routine WHERE email=#{email} 
+		and routine_no=#{routineNo}) </select> -->
+
+	<select id="getGascarList" parameterType="RoutineVO"
+		resultType="GasCarVO">
+		SELECT b.routine_no,b.email, b.gasCar, a.carbrand,
+		a.carname, a.carprice, a.carcate, a.carcatedetail, a.carimg, a.careff,
+		a.carco2
+		FROM GASCARINFO a
+		JOIN routine b ON a.carname = b.gasCar
+		where
+		b.email=#{email} and b.routine_no=#{routineNo}
+		order by 1
+	</select>
+
+	<select id="getEleccarList" parameterType="RoutineVO"
+		resultType="ElecCarVO">
+
+		SELECT b.routine_no,b.email, b.eleCar, a.carbrand,
+		a.carname, a.carprice,
+		a.carcate, a.carcatedetail, a.imgurl,a.carmpge,
+		a.careff,a.carco2
+		FROM ELECCARINFO a
+		JOIN routine b ON a.carname =
+		b.eleCar
+		where b.email=#{email} and b.routine_no=#{routineNo}
+		order by 1
+
+	</select>
+
+
+	<delete id="deleteRoutine">
+		DELETE FROM routine
+		WHERE email = #{email}
+		AND
+		routine_no = #{routineNo}
+	</delete>
+
+
+	<select id="getMaxList" parameterType="RoutineVO"
+		resultType="maxDataVO">
+		SELECT MaxCareff,MinCareff,MaxCarCO2
+		FROM (SELECT
+		(SELECT
+		MAX(careff) FROM ELECCARINFO) AS MaxCareff,
+		(SELECT MIN(careff) FROM
+		GASCARINFO) AS MinCareff,
+		(SELECT MAX(carco2) FROM GASCARINFO) AS
+		MaxCarCO2
+		FROM dual)
+	</select>
+
+	<select id="getOilPirceList" parameterType="RoutineVO"
+		resultType="OilPriceVO">
+		SELECT
+		b.email,
+		b.routine_no,
+		a.ST_DATE,
+		a.REGION,
+		MAX(CASE WHEN a.CHARGE_TYPE = 'LPG' THEN PRICE END) AS Lpg,
+		MAX(CASE WHEN a.CHARGE_TYPE = '경유' THEN PRICE END) AS Diesel,
+		MAX(CASE WHEN a.CHARGE_TYPE = '고급 휘발유' THEN PRICE END) AS Pre_Gasoline,
+		MAX(CASE WHEN a.CHARGE_TYPE = '보통 휘발유' THEN PRICE END) AS Reg_Gasoline
+		FROM
+		GAS_PRICE A
+		INNER JOIN ROUTINE B
+		ON a.REGION = b.startregion
+		WHERE
+		b.email = #{email} and b.routine_no = #{routineNo}
+		AND ST_DATE = '25/01/06'
+		GROUP BY
+		ST_DATE, REGION ,routine_no , email
+	</select>
+
+	<select id="getOilPirceEndList" parameterType="RoutineVO"
+		resultType="OilPriceEndVO">
+		SELECT
+		b.email,
+		b.routine_no,
+		a.ST_DATE,
+		a.REGION,
+		MAX(CASE WHEN a.CHARGE_TYPE = 'LPG' THEN PRICE END) AS Lpg,
+		MAX(CASE WHEN a.CHARGE_TYPE = '경유' THEN PRICE END) AS Diesel,
+		MAX(CASE WHEN a.CHARGE_TYPE = '고급 휘발유' THEN PRICE END) AS Pre_Gasoline,
+		MAX(CASE WHEN a.CHARGE_TYPE = '보통 휘발유' THEN PRICE END) AS Reg_Gasoline
+		FROM
+		GAS_PRICE A
+		INNER JOIN ROUTINE B
+		ON a.REGION = b.endregion
+		WHERE
+		b.email = #{email} and b.routine_no = #{routineNo}
+		AND ST_DATE = '25/01/06'
+		GROUP BY
+		ST_DATE, REGION ,routine_no , email
+	</select>
+
+
+	<select id="getElecPriceList" parameterType="RoutineVO"
+		resultType="ElecPriceVO">
+		SELECT *
+		FROM CHARGE_PRICE
+		WHERE OPERATOR_NAME ='환경부'
+		AND
+		POWER_TYPE='완속'
+	</select>
+	
+	
+	
+	<select id="getStationList" resultType="stationListVO">		
+SELECT 
+A.ID,A.NAME,A.FRONT_LAT,A.FRONT_LON,A.OPERATOR_NAME,A.IS_FAST,
+B.PRICE_FOR_MEMBER, B.PRICE_FOR_NON_MEMBER, B.UPDATE_DT
+FROM (SELECT 
+A.ID,
+A.NAME,
+A.FRONT_LAT,
+A.FRONT_LON,
+B.OPERATOR_NAME,
+CASE 
+    WHEN B.IS_FAST = 'Y' THEN '급속'
+    WHEN B.IS_FAST = 'N' THEN '완속'
+    ELSE '알 수 없음'
+END AS IS_FAST  -- 충전 타입을 새 열로 표시
+FROM 
+TB_STATION A
+INNER JOIN 
+TB_CHARGE B
+ON A.ID = B.STATION_ID
+WHERE A.upper_addr_name LIKE '%대전%' OR  A.upper_addr_name LIKE '%세종%' OR  A.upper_addr_name LIKE '%청주%'
+GROUP BY ID, NAME, FRONT_LAT, FRONT_LON, OPERATOR_NAME, IS_FAST) A 
+,(SELECT OPERATOR_NAME , POWER_TYPE , PRICE_FOR_MEMBER, PRICE_FOR_NON_MEMBER, UPDATE_DT
+FROM CHARGE_PRICE) B
+WHERE A.OPERATOR_NAME = B.OPERATOR_NAME AND A.IS_FAST = B.POWER_TYPE
+	</select>
+
+</mapper>

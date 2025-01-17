@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.eMotion.team.preperCar.dao.IPreperCarDAO">
+	
+	<!-- 찜목록 추가 -->
+	<insert id="insertPreper" parameterType="PreperCarVO">
+		INSERT INTO preperCar (preperId,eCarName,email)
+		VALUES (preperCar_seq.NEXTVAL, #{eCarName}, #{email})
+	</insert>
+
+	<!-- 찜목록 삭제 -->
+	<delete id="deletePreper" parameterType="PreperCarVO">
+		DELETE preperCar
+		WHERE eCarName = #{eCarName}
+		AND email = #{email}
+	</delete>
+	
+	<!-- 차량 리스트 하트에 찜목록 내용 반영 -->
+	<select id="preperList" parameterType="PreperCarVO" resultType="PreperCarVO">
+		SELECT a.preperId, a.eCarName, a.email, b.imgUrl
+		FROM preperCar a, elecCarInfo b
+		WHERE b.carName = a.eCarName
+		AND a.eCarName = #{eCarName}
+		AND a.email = #{email}
+	</select>
+
+
+
+</mapper>

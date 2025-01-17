@@ -1,0 +1,83 @@
+package com.eMotion.team.routine.service;
+
+import java.util.ArrayList;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.eMotion.team.routine.dao.IRoutineDAO;
+import com.eMotion.team.routine.vo.ElecCarInfoVO;
+import com.eMotion.team.routine.vo.GasCarInfoVO;
+import com.eMotion.team.routine.vo.RoutineVO;
+
+@Service
+public class IRoutineServiceImpl implements IRoutineService{
+
+	@Autowired
+	IRoutineDAO dao;
+	//루틴가져오기
+	@Override
+	public ArrayList<RoutineVO> getRoutineList(RoutineVO routine) throws Exception {
+	    // 루틴 목록 조회
+	    ArrayList<RoutineVO> result = dao.getRoutineList(routine);
+	    return result;
+	}
+		
+		
+		
+		// 루틴 상세내용 가져오기 
+		@Override
+	    public RoutineVO getRoutine(int routineNo) throws Exception{
+	    	RoutineVO result = dao.getRoutine(routineNo);
+	         if (result == null) {
+	             throw new Exception("작성된 루틴을 찾을수 없습니다.");
+	         }
+	         return result;
+	    }
+	    
+	    
+	    // 루틴 작성 
+		@Override
+	    public void writeRoutine(RoutineVO Routine) throws Exception{
+	    	int result = dao.writeRoutine(Routine);
+	    	 if (result == 0) {
+	             throw new Exception("루틴 작성에 실패했습니다.");
+	         }
+	    }
+	    
+	    // 루틴 수정
+		@Override
+	    public void updateRoutine(RoutineVO Routine) throws Exception{
+	    	int result = dao.updateRoutine(Routine);
+	    	if(result == 0) {
+	    		throw new Exception("루틴 수정에 실패했습니다");
+	    	}
+	    }
+	    
+	    // 루틴 삭제
+		@Override
+	    public void deleteRoutine(int routineNo) throws Exception{
+	    	int result = dao.deleteRoutine(routineNo);
+	    	if (result == 0) {
+	    		throw new Exception("루틴 삭제에 실패했습니다.");
+	    	}
+	    	
+	    }
+
+		// 내연기관 자동완성 
+		@Override
+		public ArrayList<GasCarInfoVO> getGasCarList(GasCarInfoVO Gascar){
+			ArrayList<GasCarInfoVO> GasCarList = dao.getGasCarList(Gascar);
+			return GasCarList;
+		}
+		
+		// 전기차 자동완성
+		@Override
+		public ArrayList<ElecCarInfoVO> getElecCarList(ElecCarInfoVO Elecar){
+			ArrayList<ElecCarInfoVO> ElecCarList = dao.getElecCarList(Elecar);
+			return ElecCarList;
+		}
+
+	
+	
+}

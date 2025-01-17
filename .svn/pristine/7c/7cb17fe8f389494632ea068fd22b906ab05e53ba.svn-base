@@ -1,0 +1,170 @@
+
+<%
+  /* ================================================================= 
+   * 작성일     : 2024. 12. 17. 
+   * 작성자     : 서원빈
+   * 상세설명  : 
+   * 화면ID  :
+   * ================================================================= 
+   * 수정일         작성자             내용      
+   * ----------------------------------------------------------------------- 
+   * ================================================================= 
+   */
+%>
+
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>검색된 차량 리스트</title>
+<!-- 부트스트랩 CSS -->
+<!-- 프레임 워크 jquery and bootStrap-->
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+	rel="stylesheet"
+	integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+	crossorigin="anonymous">
+<script
+	src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+	integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+	crossorigin="anonymous"></script>
+<!-- 프레임 워크 jquery and bootStrap-->
+<style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+        }
+        .image-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+        }
+        .details-container {
+            max-height: 300px;
+            overflow-y: auto;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
+        .detail {
+            margin-bottom: 10px;
+            padding: 5px;
+            border-bottom: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+	<div id="listContainer">
+		<c:forEach var="detail" items="${details}">
+			<div class="card" style="width: 18rem;">
+				<input class="card-title" type="hidden" 
+					   value="/assets/img/elec_car_img/${detail.imgUrl }" name="imgUrl">
+				<img src="/assets/img/elec_car_img/${detail.imgUrl}" class="card-img-top" alt="...">
+				<div class="card-body">
+					<div class="subsidy-info" style="border: 1px solid #000; padding: 10px;">
+					 	<span class="card-text">국고: ${detail.govSubsidy }만원 |</span>
+						<span class="card-text">지방비(지역): ${detail.locSubsidy }만원 |</span>
+						<span class="card-text">잔여대수: ${detail.effLeftAll }/${detail.effAllAll } 대</span>
+					</div>
+					<input class="card-title" id="${detail.carName }" 
+						   type="hidden" value="${detail.carName }" name="carName">
+						${detail.carName }
+					<span class="card-text">${detail.carPrice }원</span>
+					<span class="card-text">(-${detail.sumSubsidy }만원)</span><br>
+					<p class="card-text">1회 충전 주행거리</p>
+					<span class="card-text">상온: ${detail.singleWarm }km | 저온: ${detail.singleCold }km</span>
+					
+					<!-- Button trigger modal -->
+					<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+					  더 많은 정보!
+					</button>
+					
+					<!-- Modal -->
+					<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+					  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+					    <div class="modal-content">
+					      <div class="modal-header">
+					        <h1 class="modal-title fs-5" id="exampleModalLabel">${detail.carName }<br>${detail.carPrice }원</h1>
+					        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					      </div>
+					      <div class="modal-body">
+								<img src="/assets/img/elec_car_img/${detail.imgUrl}" class="card-img-top" alt="...">
+								<button type="button">견적저장</button>
+								<button type="button">차종 상세 정보</button>
+								<p class="card-text">제조사(제조국가)</p>
+								<p class="card-text">${detail.make }(${detail.manu })</p>
+								<p class="card-text">차량분류</p>
+								<p class="card-text">${detail.person }</p>
+								<p class="card-text">배터리종류/용량</p>
+								<p class="card-text">${detail.batType }/${detail.batVol }kWh</p>
+								<p class="card-text">1회 충전 주행거리</p>
+								<p class="card-text">상온: ${detail.singleWarm }km | 저온: ${detail.singleCold }km</p>
+								<p class="card-text">보조금</p>
+								<p class="card-text">국고보조금</p>
+								<p class="card-text">${detail.govSubsidy }만원</p>
+								<p class="card-text">지방비보조금(지역)</p>
+								<p class="card-text">${detail.locSubsidy }만원 (지역)</p>
+								<p class="card-text">잔여대수</p>
+								<p class="card-text">${detail.effLeftAll }/${detail.effAllAll } 대
+									<button class="TO-btn" data-bs-toggle="popover" data-bs-trigger="focus"
+											title="Popover title" data-bs-content="${detail.effLeftAll}/${detail.effAllAll}
+																				   ${effLeftFirst}/${effAllFirst}
+																				   ${effLeftCorporation}/${effAllCorporation}
+																				   ${effLeftTaxi}/${effAllTaxi}
+																				   ${effLeftDelivery}/${effAllDelivery}
+																				   ${effLeftSmallCompany}/${effAllSmallCompany}
+																				   ${effLeftCommon}/${effAllCommon}">
+									!
+									</button>
+									    <input type="hidden" class="effLeftAll" value="${detail.effLeftAll}" />
+									    <input type="hidden" class="effAllAll" value="${detail.effAllAll}" />
+									    <input type="hidden" class="effLeftFirst" value="${detail.effLeftFirst}" />
+									    <input type="hidden" class="effAllFirst" value="${detail.effAllFirst}" />
+									    <input type="hidden" class="effLeftCorporation" value="${detail.effLeftCorporation}" />
+									    <input type="hidden" class="effAllCorporation" value="${detail.effAllCorporation}" />
+									    <input type="hidden" class="effLeftTaxi" value="${detail.effLeftTaxi}" />
+									    <input type="hidden" class="effAllTaxi" value="${detail.effAllTaxi}" />
+									    <input type="hidden" class="effLeftDelivery" value="${detail.effLeftDelivery}" />
+									    <input type="hidden" class="effAllDelivery" value="${detail.effAllDelivery}" />
+									    <input type="hidden" class="effLeftSmallCompany" value="${detail.effLeftSmallCompany}" />
+									    <input type="hidden" class="effAllSmallCompany" value="${detail.effAllSmallCompany}" />
+									    <input type="hidden" class="effLeftCommon" value="${detail.effLeftCommon}" />
+									    <input type="hidden" class="effAllCommon" value="${detail.effAllCommon}" />
+								</p>
+					      </div>
+					      <div class="modal-footer">
+					        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+					        <button type="button" class="btn btn-primary">Save changes</button>
+					      </div>
+					    </div>
+					  </div>
+					</div>
+					
+					
+		 		</div>
+			</div>
+		</c:forEach>
+	</div>
+</div>
+
+</body>
+<script src="/resources/js/filterList.js"></script>
+</html>

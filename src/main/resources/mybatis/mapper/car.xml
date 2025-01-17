@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.eMotion.team.car.dao.ICarDAO">
+
+	<select id="getCarList" resultType="CarVO" parameterType="CarVO">
+	
+		SELECT carname
+		FROM ${carType}
+		WHERE UPPER(carname) LIKE UPPER('%' || #{keyword} || '%')
+		
+	</select>
+	
+	<insert id="eSaveCar" parameterType="CarVO">
+	
+		INSERT INTO ${carType}(ecarname, email, ecarbuydate, important)
+		VALUES(#{carName},#{email},#{carBuyDate},#{important})
+		
+	</insert>
+	
+	<insert id="gSaveCar" parameterType="CarVO">
+	
+		INSERT INTO ${carType}(gcarname, email, gcarbuydate, important)
+		VALUES(#{carName},#{email},#{carBuyDate},#{important})
+		
+	</insert>
+	
+	<select id="eCarCheck" resultType="int" parameterType="CarVO">
+	
+		SELECT COUNT(*) FROM ${carType}
+		WHERE ecarname = #{carName}
+		AND email = #{email}
+		
+	</select>
+	
+	<select id="gCarCheck" resultType="int" parameterType="CarVO">
+	
+		SELECT COUNT(*) FROM ${carType}
+		WHERE gcarname = #{carName}
+		AND email = #{email}
+		
+	</select>
+	
+	<select id="eNumCheck" resultType="int" parameterType="CarVO">
+	
+		SELECT COUNT(*) FROM ${carType}
+		WHERE email = #{email}
+		
+	</select>
+	
+	<select id="gNumCheck" resultType="int" parameterType="CarVO">
+	
+		SELECT COUNT(*) FROM ${carType}
+		WHERE email = #{email}
+		
+	</select>
+	
+	<select id="gSaveCarList" resultType="CarVO" parameterType="CarVO">
+	
+		SELECT gcarname as carName
+		     , gcarbuydate as carBuyDate
+		     , important
+		FROM havegcar
+		WHERE email = #{email}
+		
+	</select>
+	
+	<select id="eSaveCarList" resultType="CarVO" parameterType="CarVO">
+	
+		SELECT ecarname as carName
+		     , ecarbuydate as carBuyDate
+		     , important
+		FROM haveecar
+		WHERE email = #{email}
+		
+	</select>
+	
+	<delete id="gdelCar" parameterType="CarVO">
+	
+		DELETE havegcar
+		WHERE gcarname = #{carName}
+		AND email = #{email}
+	
+	</delete>
+	
+	<delete id="edelCar" parameterType="CarVO">
+	
+		DELETE haveecar
+		WHERE ecarname = #{carName}
+		AND email = #{email}
+		
+	</delete>
+	
+	<update id="gImpCar" parameterType="CarVO">
+	
+		UPDATE havegcar
+		SET important = CASE 
+		                   WHEN gcarname = #{carName} AND email = #{email} THEN '1'
+		                   ELSE '0'
+		               END
+		WHERE email = #{email}
+	
+	</update>
+	
+	<update id="eImpCar" parameterType="CarVO">
+		
+		UPDATE haveecar
+		SET important = CASE 
+		                   WHEN ecarname = #{carName} AND email = #{email} THEN '1'
+		                   ELSE '0'
+		               END
+		WHERE email = #{email}
+	
+	</update>
+	
+	<update id="memListSaveCar" parameterType="CarVO">
+		
+		MERGE 
+		 INTO MEMBER M
+		USING ( SELECT email
+		        FROM HAVEGCAR
+		        UNION 
+		        SELECT email
+		        FROM HAVEECAR ) SRC
+		   ON (M.email = SRC.email AND M.email=#{email})
+		 WHEN MATCHED THEN
+		      UPDATE 
+		         SET M.saveCar = 'Y'
+		           , M.notOwner = 'N'
+		       WHERE M.email = #{email}
+	
+	</update>
+	
+	<update id="memSaveCar" parameterType="CarVO">
+		
+		UPDATE member
+		SET notOwner = 'Y'
+		  , saveCar = 'N'
+		WHERE email = #{email}
+	
+	</update>
+	
+	<delete id="eTotalDel" parameterType="CarVO">
+	
+		DELETE haveecar
+		WHERE email = #{email}
+		
+	</delete>
+	
+	<delete id="gTotalDel" parameterType="CarVO">
+	
+		DELETE havegcar
+		WHERE email = #{email}
+		
+	</delete>
+	
+	<select id="carMem" parameterType="CarVO" resultType="MemberVO">
+		
+		SELECT email
+		     , saveCar
+		     , notOwner
+		FROM member
+		WHERE useYn = 'Y'
+		AND   email = #{email}
+		
+	</select>
+	
+</mapper>

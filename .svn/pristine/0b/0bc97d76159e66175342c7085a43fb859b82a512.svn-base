@@ -1,0 +1,23 @@
+package com.eMotion.team.message.service;
+
+import java.util.List;
+
+import com.eMotion.team.message.vo.MessageVO;
+
+public interface MessageService {
+    void sendMessage(MessageVO message);
+    
+    List<MessageVO> getReceivedMessages(String receiverEmail);
+    
+    List<MessageVO> getSentMessages(String senderEmail);
+    
+    void markMessageAsRead(int msgNo);
+    
+    void deleteMessages(List<Integer> msgNos, String userType);
+    
+    void markSenderMessagesAsDeleted(List<Integer> msgNos);
+    
+    void markReceiverMessagesAsDeleted(List<Integer> msgNos);
+
+	void updateMessageReadStatus(int msgNo);
+}

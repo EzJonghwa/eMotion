@@ -1,0 +1,8 @@
+package com.eMotion.team.compare.service;
+
+import org.springframework.stereotype.Service;
+
+@Service("CarCompareService")
+public class CarCompareServiceImpl {
+
+}

@@ -1,0 +1,12 @@
+package com.eMotion.team.board.service;
+
+import java.util.List;
+import com.eMotion.team.board.vo.CommentVO;
+
+public interface CommentService {
+    void addComment(CommentVO comment);
+    List<CommentVO> getCommentsByBoNo(int boNo);
+    void updateComment(CommentVO comment);
+    void deleteComment(int coNo);
+    boolean isCommentWriter(int coNo, String email); // 댓글 작성자 확인
+}

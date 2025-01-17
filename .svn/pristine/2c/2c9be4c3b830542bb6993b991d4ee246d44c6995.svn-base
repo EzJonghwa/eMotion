@@ -1,0 +1,14 @@
+package com.eMotion.team.board.dao;
+
+import java.util.List;
+import com.eMotion.team.board.vo.CommentVO;
+import org.apache.ibatis.annotations.Mapper;
+
+@Mapper
+public interface ICommentDAO {
+    void addComment(CommentVO comment);
+    List<CommentVO> getCommentsByBoNo(int boNo);
+    void updateComment(CommentVO comment);
+    void deleteComment(int coNo);
+    String getCommentWriter(int coNo); // 댓글 작성자 확인
+}

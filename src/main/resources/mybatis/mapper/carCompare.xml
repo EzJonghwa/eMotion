@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.eMotion.team.compare.dao.ICarCompareDAO">
+
+	<select id="elecCompareList" resultType="CarElecCompareVO" parameterType="CarElecCompareVO">
+	
+		SELECT carName
+		     , imgUrl
+		FROM eleccarinfo
+		WHERE UPPER(carname) LIKE UPPER('%' || #{carName} || '%')
+		
+	</select>
+	
+	<select id="getElecCar" resultType="CarElecCompareVO" parameterType="CarElecCompareVO">
+	
+		SELECT carName
+		     , imgUrl
+		     , carCateDetail
+		     , carBrand
+		     , carPrice
+		     , carEff
+		     , carCo2
+		     , batType
+	         , batVol
+             , singleWarm
+             , singleCold
+		FROM eleccarinfo
+		WHERE UPPER(carName) LIKE UPPER(#{carName})
+		
+	</select>
+	
+	<select id="gasCompareList" resultType="CarGasCompareVO" parameterType="CarGasCompareVO">
+	
+		SELECT carName
+		     , carImg
+		     , carBrand
+		FROM gascarinfo
+		WHERE UPPER(carname) LIKE UPPER('%' || #{carName} || '%')
+		
+	</select>
+	
+	<select id="getGasCar" resultType="CarGasCompareVO" parameterType="CarGasCompareVO">
+	
+		SELECT carName
+		     , carImg
+		     , carCateDetail
+		     , carBrand
+		     , carPrice
+		     , carEff
+		     , carCo2
+		FROM gascarinfo
+		WHERE UPPER(carName) LIKE UPPER(#{carName})
+		AND carBrand = #{carBrand}
+		
+	</select>
+	
+	<select id="saveECar" resultType="CarElecCompareVO" parameterType="CarElecCompareVO">
+	
+		SELECT carname
+		     , imgUrl
+		FROM eleccarinfo
+		WHERE carname IN (
+		        SELECT ecarname
+		        FROM haveecar
+		        WHERE email = #{email}
+		)
+		
+	</select>
+	
+	<select id="likeECar" resultType="CarElecCompareVO" parameterType="CarElecCompareVO">
+	
+		SELECT carname
+		     , imgUrl
+		FROM eleccarinfo
+		WHERE carname IN (
+		        SELECT ecarname
+		        FROM prepercar
+		        WHERE email = #{email}
+		)
+		
+	</select>
+	
+	<select id="saveGCar" resultType="CarGasCompareVO" parameterType="CarGasCompareVO">
+	
+		SELECT carname
+		     , carImg
+		     , carBrand
+		FROM gascarinfo
+		WHERE carname IN (
+		        SELECT gcarname
+		        FROM havegcar
+		        WHERE email = #{email}
+		)
+	
+	</select>
+	
+	
+</mapper>

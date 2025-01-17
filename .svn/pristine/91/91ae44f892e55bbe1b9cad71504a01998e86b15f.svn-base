@@ -1,0 +1,5 @@
+package com.eMotion.team.routine.dao;
+
+public interface RoutineDAO {
+
+}

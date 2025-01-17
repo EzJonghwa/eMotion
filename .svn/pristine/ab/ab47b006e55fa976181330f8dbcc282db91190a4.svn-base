@@ -1,0 +1,78 @@
+package com.eMotion.team.car.controller;
+
+import java.util.ArrayList;
+
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.eMotion.team.car.service.CarService;
+import com.eMotion.team.car.vo.CarVO;
+import com.eMotion.team.member.vo.MemberVO;
+
+@Controller
+public class CarController {
+	
+	@Autowired
+	CarService carservice;
+	
+	// 내연기관차 목록
+	@RequestMapping("/saveListView")
+	public String saveListView() {
+		return "member/saveList";
+	}
+	
+	@RequestMapping("/carSearch")
+	@ResponseBody // JSON 데이터를 반환하기 위해 추가
+	public ArrayList<CarVO> searchCars(@ModelAttribute CarVO car, Model model) { // 차량 유형 추가
+	    
+		//System.out.println("검색어: " + car.getKeyword());
+        //System.out.println("차량 유형: " + car.getCarType());
+        
+        ArrayList<CarVO> carList = carservice.getCarList(car);
+        //System.out.println(carList);
+        
+        return carList; // 클라이언트에 응답
+	}
+	
+	// 내연기관차 목록
+	@RequestMapping("/saveCar")
+	public String saveCarView(CarVO car, HttpSession session) {
+		
+		MemberVO login = (MemberVO) session.getAttribute("login");
+		if (login != null) {
+	        String email = login.getEmail(); // DTO 객체의 getEmail() 사용
+	        car.setEmail(email);
+	    } else {
+	        return "redirect:/loginView";
+	    }
+		
+		
+		// carName의 쉼표 제거
+	    if (car.getCarName() != null) {
+	        String sanitizedCarName = car.getCarName().replace(",", "").trim(); // 쉼표 제거 및 공백 처리
+	        car.setCarName(sanitizedCarName); // 수정된 이름 설정
+	    }
+		
+		
+		System.out.println(car.getCarBuyDate());
+		System.out.println(car.getCarName());
+		System.out.println(car.getCarType());
+		System.out.println(car.getEmail());
+		
+		try {
+			carservice.saveCar(car);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return "redirect:/saveListView";
+	}
+
+		
+}

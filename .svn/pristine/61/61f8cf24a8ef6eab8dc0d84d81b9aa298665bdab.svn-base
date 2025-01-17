@@ -1,0 +1,25 @@
+package com.eMotion.team.routine.service;
+
+import java.util.ArrayList;
+
+import com.eMotion.team.routine.vo.ElecCarInfoVO;
+import com.eMotion.team.routine.vo.GasCarInfoVO;
+import com.eMotion.team.routine.vo.RoutineVO;
+
+public interface IRoutineService {
+
+	//루틴가져오기
+		public ArrayList<RoutineVO> getRoutineList(RoutineVO Routine) throws Exception;
+		// 루틴 상세내용 가져오기 
+	    public RoutineVO getRoutine(int routineNo) throws Exception;
+	    // 루틴 작성 
+	    public void writeRoutine(RoutineVO Routine) throws Exception;
+	    // 루틴 수정
+	    public void updateRoutine(RoutineVO Routine) throws Exception;
+	    // 루틴 삭제
+	    public void deleteRoutine(int routineNo) throws Exception;
+		// 내연기관 자동완성 
+		public ArrayList<GasCarInfoVO> getGasCarList(GasCarInfoVO Gascar);
+		// 전기차 자동완성
+		public ArrayList<ElecCarInfoVO> getElecCarList(ElecCarInfoVO Elecar);
+}

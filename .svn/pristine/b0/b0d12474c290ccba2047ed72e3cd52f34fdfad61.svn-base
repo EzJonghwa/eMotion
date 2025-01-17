@@ -1,0 +1,3 @@
+# dev img path
+file.upload.path=C:\\tools\\image_repo
+file.download.path=/download?imageFileName=

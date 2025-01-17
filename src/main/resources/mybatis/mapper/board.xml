@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.eMotion.team.board.dao.IBoardDAO">
+
+    <!-- 총 게시글 수 조회 -->
+<select id="getTotalRowCount" resultType="int" parameterType="com.eMotion.team.board.vo.BoardSearchVO">
+    SELECT COUNT(*)
+    FROM board bo
+    LEFT JOIN boardcategory c ON bo.cateNo = c.cateNo
+    LEFT JOIN member m ON bo.email = m.email
+    WHERE bo.boDelYn = 'N'
+    <if test="cateNo != null">
+        AND bo.cateNo = #{cateNo}
+    </if>
+    <if test="searchWord != null and searchWord != ''">
+        AND (
+            bo.boTitle LIKE '%' || #{searchWord} || '%'
+            OR bo.boContent LIKE '%' || #{searchWord} || '%'
+            OR m.nickname LIKE '%' || #{searchWord} || '%'
+        )
+    </if>
+</select>
+
+
+    <select id="getBoardList" resultType="BoardVO" parameterType="BoardSearchVO">
+    SELECT *
+    FROM (
+        SELECT ROWNUM AS rnum, b.*
+        FROM (
+            SELECT 
+                bo.boNo, 
+                bo.boTitle, 
+                bo.email, 
+                m.nickname,
+                bo.boContent, 
+                bo.boHit, 
+                bo.boRecommend,
+                (SELECT COUNT(*) 
+                 FROM comments c 
+                 WHERE c.boNo = bo.boNo 
+                   AND c.coDelYn = 'N') AS calculatedCommentCount,
+                bo.boRegDate, 
+                bo.boDelYn,
+                bo.cateNo, 
+                c.cateNm,
+                bo.isNotice
+            FROM board bo
+            LEFT JOIN boardcategory c ON bo.cateNo = c.cateNo
+            LEFT JOIN member m ON bo.email = m.email
+            WHERE bo.boDelYn = 'N'
+            <if test="cateNo != null">
+                AND bo.cateNo = #{cateNo}
+            </if>
+            <if test="searchWord != null and searchWord != ''">
+                <choose>
+                    <when test="searchType == 'title'">
+                        AND bo.boTitle LIKE '%' || #{searchWord} || '%'
+                    </when>
+                    <when test="searchType == 'content'">
+                        AND bo.boContent LIKE '%' || #{searchWord} || '%'
+                    </when>
+                    <when test="searchType == 'writer'">
+                        AND m.nickname LIKE '%' || #{searchWord} || '%'
+                    </when>
+                    <otherwise>
+                        AND (bo.boTitle LIKE '%' || #{searchWord} || '%'
+                            OR bo.boContent LIKE '%' || #{searchWord} || '%'
+                            OR m.nickname LIKE '%' || #{searchWord} || '%')
+                    </otherwise>
+                </choose>
+            </if>
+            ORDER BY 
+                bo.isNotice DESC,
+                <choose>
+                    <when test="sort == 'hit'">bo.boHit DESC, bo.boRegDate DESC, bo.boNo DESC</when>
+                    <when test="sort == 'recommend'">bo.boRecommend DESC, bo.boRegDate DESC, bo.boNo DESC</when>
+                    <otherwise>bo.boRegDate DESC, bo.boNo DESC</otherwise>
+                </choose>
+        ) b
+        WHERE ROWNUM &lt;= #{lastRow}
+    )
+    WHERE rnum &gt;= #{firstRow}
+</select>
+
+
+
+
+	<!-- 게시글 상세  -->
+<select id="getBoard" resultType="BoardVO" parameterType="int">
+    SELECT 
+        bo.boNo, 
+        bo.boTitle, 
+        bo.email, 
+        m.nickname,
+        m.profileImg,
+        bo.boContent, 
+        bo.boHit, 
+        bo.boRecommend,
+        bo.boRegDate, 
+        bo.boModDate,
+        c.cateNm
+    FROM 
+        board bo
+    LEFT JOIN 
+        boardcategory c ON bo.cateNo = c.cateNo
+    LEFT JOIN 
+        member m ON bo.email = m.email
+    WHERE 
+        bo.boNo = #{boNo}
+        AND bo.boDelYn = 'N'
+</select>
+
+
+    <!-- 게시글 등록 -->
+<insert id="insertBoard" parameterType="BoardVO">
+    INSERT INTO BOARD (
+        boNo, boTitle, email, boContent, BOHIT, BORECOMMEND, BOCOMMENT, BOREGDATE, BODELYN, CATENO, ISNOTICE
+    )
+    VALUES (
+        (SELECT NVL(MAX(boNo), 0) + 1 FROM BOARD),
+        #{boTitle}, #{email}, #{boContent}, 0, 0, 0, SYSDATE, 'N', #{cateNo}, 'N'
+    )
+</insert>
+
+
+	    <!-- 게시글 수정 -->
+<update id="updateBoard" parameterType="BoardVO">
+    UPDATE board
+    SET boContent = #{boContent}, 
+        boModDate = SYSDATE
+    WHERE boNo = #{boNo}
+      AND boDelYn = 'N'
+</update>
+
+    <update id="deleteBoard" parameterType="int">
+        UPDATE BOARD
+        SET BODELYN = 'Y'
+        WHERE BONO = #{boNo}
+    </update>
+
+    <!-- 조회수 증가 -->
+	<update id="increaseHit" parameterType="int">
+	    UPDATE board
+	    SET boHit = NVL(boHit, 0) + 1
+	    WHERE boNo = #{boNo}
+	</update>
+	
+    <!-- 추천 여부 확인 -->
+<select id="hasUserRecommended" parameterType="map" resultType="boolean">
+    SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END AS is_recommended
+    FROM likeboard
+    WHERE boNo = #{boNo} AND email = #{email}
+</select>
+
+    <!-- 추천 추가 -->
+    <insert id="addRecommend" parameterType="map">
+        INSERT INTO likeboard (boNo, email, likeRegDate)
+        VALUES (#{boNo}, #{email}, SYSDATE)
+    </insert>
+
+    <!-- 추천 제거 -->
+    <delete id="removeRecommend" parameterType="map">
+        DELETE FROM likeboard
+        WHERE boNo = #{boNo} AND email = #{email}
+    </delete>
+
+    <!-- 추천 수 갱신 -->
+    <update id="updateRecommendCount" parameterType="int">
+        UPDATE board
+        SET boRecommend = (SELECT COUNT(*) FROM likeboard WHERE boNo = #{boNo})
+        WHERE boNo = #{boNo}
+    </update>
+
+	
+<!-- 이전 게시글 가져오기 -->
+<select id="getPrevPost" parameterType="int" resultType="BoardVO">
+    SELECT * 
+    FROM (
+        SELECT * 
+        FROM board 
+        WHERE boNo &lt; #{boNo} 
+          AND boDelYn = 'N' 
+        ORDER BY boNo DESC
+    )
+    WHERE ROWNUM = 1
+</select>
+
+<!-- 다음 게시글 가져오기 -->
+<select id="getNextPost" parameterType="int" resultType="BoardVO">
+    SELECT * 
+    FROM (
+        SELECT * 
+        FROM board 
+        WHERE boNo &gt; #{boNo} 
+          AND boDelYn = 'N' 
+        ORDER BY boNo ASC
+    )
+    WHERE ROWNUM = 1
+</select>
+
+	
+	<select id="getCommentsByBoardNo" parameterType="int" resultType="CommentVO">
+    SELECT *
+    FROM comment
+    WHERE boNo = #{boNo}
+    ORDER BY comment_date ASC
+	</select>
+
+		
+	</mapper>

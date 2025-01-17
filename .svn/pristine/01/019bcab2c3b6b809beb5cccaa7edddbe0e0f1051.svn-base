@@ -1,0 +1,15 @@
+package com.eMotion.team.car.service;
+
+import java.util.ArrayList;
+
+import com.eMotion.team.car.vo.CarVO;
+
+public interface CarService {
+	
+	// 차 리스트 조회
+	public ArrayList<CarVO> getCarList(CarVO car);
+	
+	// 차 저장
+	public void saveCar(CarVO car) throws Exception;
+	
+}

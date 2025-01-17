@@ -1,0 +1,13 @@
+package com.eMotion.team.car.vo;
+
+import lombok.Data;
+
+@Data
+public class CarVO {
+	
+	String email;
+	String keyword;
+	String carType;
+	String carName;
+	String carBuyDate;
+}

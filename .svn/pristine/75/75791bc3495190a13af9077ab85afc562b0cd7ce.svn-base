@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.eMotion.team.routine.dao.IRoutineDAO">
+
+	<select id="getRoutineList" resultType="RoutineVO" parameterType="RoutineVO">
+	
+		SELECT routine_no,email,rouTitle,rouDetail,rouDay,startLoc,endLoc,totalDis,roundTripYn,gasCar,eleCar,createDt
+		FROM routine
+		where email=#{email}
+        order by 12 DESC
+
+	</select>
+	
+	<insert id="writeRoutine" parameterType="RoutineVO">
+	
+	INSERT INTO routine (routine_no,email,rouTitle,rouDetail,rouDay,startLoc,endLoc,totalDis,roundTripYn,gasCar,eleCar)
+	VALUES (routine_seq.NEXTVAL,#{email},#{rouTitle},#{rouDetail},#{rouDay},#{startLoc},#{endLoc},#{totalDis},#{roundTripYn},#{gasCar},#{eleCar})
+	</insert>
+	
+	<update id="RewriteRoutine" parameterType="RoutineVO">
+	UPDATE routine SET rouTitle =#{rouTitle},rouDetail=#{rouDetail},rouDay=#{rouDay},startLoc=#{startLoc},endLoc=#{endLoc}
+		  ,totalDis=#{totalDis},roundTripYn=#{roundTripYn},gasCar=#{gasCar},eleCar=#{eleCar},createDt=SYSDATE
+	WHERE routine_no=#{routineNo} AND email=#{email}
+	</update>
+	<!--
+	<select id="getGascarList" parameterType="RoutineVO" resultType="GasCarVO">
+		SELECT carbrand, carname, carcate, carcatedetail, carimg,careff,carco2 
+		FROM GASCARINFO
+		WHERE carname = (SELECT gasCar
+						 FROM routine
+					  	 WHERE email=#{email} and routine_no=#{routineNo})
+
+	</select>
+	  -->
+	  
+	  	<!--
+	
+	<select id="getEleccarList" parameterType="RoutineVO" resultType="ElecCarVO" >
+	
+		SELECT carbrand, carname, carcate, carcatedetail, imgurl,carmpge, careff,carco2
+		FROM ELECCARINFO
+		WHERE carname = (SELECT eleCar
+		FROM routine
+		WHERE email=#{email} and routine_no=#{routineNo})
+	
+	</select>
+	
+	  -->
+	  
+	<select id="getGascarList" parameterType="RoutineVO" resultType="GasCarVO">
+		SELECT b.routine_no,b.email, b.gasCar, a.carbrand, a.carname, a.carcate, a.carcatedetail, a.carimg, a.careff, a.carco2 
+	    FROM GASCARINFO a
+	    JOIN routine b ON a.carname = b.gasCar
+	    where b.email=#{email} and b.routine_no=#{routineNo}
+    	order by 1
+	</select>
+
+	<select id="getEleccarList" parameterType="RoutineVO" resultType="ElecCarVO" >
+	
+		SELECT b.routine_no,b.email, b.eleCar, a.carbrand, a.carname, a.carcate, a.carcatedetail, a.imgurl,a.carmpge, a.careff,a.carco2
+	    FROM ELECCARINFO a
+	    JOIN routine b ON a.carname = b.eleCar
+	    where b.email=#{email} and b.routine_no=#{routineNo}
+	    order by 1
+	
+	</select>
+	
+	
+	
+</mapper>

@@ -1,0 +1,31 @@
+@charset "UTF-8";
+
+/* header 추가 css */
+.mainhead {
+    margin-top: calc(env(safe-area-inset-top) + 2vh) !important;
+    /* 상단 안전 영역 고려 */
+}
+
+.logo img {
+	max-height: 6vh;
+	/* 로고 크기 설정 */
+	display: block;
+	margin: 0 auto;
+	cursor: pointer;
+}
+
+.menu-icon {
+	font-size: 6vh;
+	/* 메뉴 아이콘 크기 */
+	cursor: pointer;
+	visibility: hidden;
+}
+
+/* HEADER 와 메인 사이의 파란색 줄 */
+.bot_brd {
+	height: 4px;
+	/* 영역 높이 */
+	background: linear-gradient(to bottom, #d6edff, rgba(214, 237, 255, 0));
+	/* 위에서 아래로 흐려짐 */
+}
+/* header 추가 css */

@@ -1,0 +1,6 @@
+# dev img path
+file.upload.path=C:\\tools\\image_repo
+file.download.path=/download?imageFileName=
+
+# ubunto
+#file.upload.path=/home/server3/Downloads/img_repo

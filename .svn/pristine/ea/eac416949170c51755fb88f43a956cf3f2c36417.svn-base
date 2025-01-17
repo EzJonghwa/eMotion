@@ -1,0 +1,19 @@
+package com.eMotion.team.compare.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+@Controller
+public class CarCompareController {
+	
+	
+	@RequestMapping("/carCompare")
+	public String carCompare() {
+		return "compare/carCompare";
+	}
+	
+	
+	
+	
+	
+}

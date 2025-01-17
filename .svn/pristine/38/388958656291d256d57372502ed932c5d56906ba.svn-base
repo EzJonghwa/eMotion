@@ -1,0 +1,12 @@
+package com.eMotion.team.chart.vo;
+
+import lombok.Data;
+
+@Data
+public class MapChartVO {
+
+    private String stationName;   // 충전소 이름
+    private double latitude;      // 위도
+    private double longitude;     // 경도
+    private String statid;        // 조회된 statid
+}

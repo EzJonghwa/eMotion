@@ -1,0 +1,24 @@
+package com.eMotion.team.board.vo;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+@Data
+@AllArgsConstructor
+public class BoardPagingVO {
+    private int currentPage;
+    private int totalRows;
+    private int pageSize;
+
+    public int getTotalPages() {
+        return (int) Math.ceil((double) totalRows / pageSize);
+    }
+
+    public int getStartPage() {
+        return Math.max(1, currentPage - 5);
+    }
+
+    public int getEndPage() {
+        return Math.min(getTotalPages(), currentPage + 5);
+    }
+}

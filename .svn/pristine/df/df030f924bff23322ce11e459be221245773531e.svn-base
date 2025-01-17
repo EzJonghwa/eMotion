@@ -1,0 +1,12 @@
+package com.eMotion.team.board.vo;
+
+import lombok.Data;
+
+@Data
+public class BoardSearchVO {
+    private String searchType;
+    private String searchWord;
+    private int firstRow;
+    private int lastRow;
+    private String category; // 카테고리 필드 추가
+}

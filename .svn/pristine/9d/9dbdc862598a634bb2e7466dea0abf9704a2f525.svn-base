@@ -1,0 +1,13 @@
+package com.eMotion.team.routine.vo;
+
+import lombok.Data;
+
+@Data
+public class OilPriceVO {
+	private String stDate;
+	private String region;
+	private double Lpg;
+	private double Diesel;
+	private double PreGasoline;
+	private double RegGasoline;
+}

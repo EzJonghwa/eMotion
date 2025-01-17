@@ -1,0 +1,226 @@
+var brandTag = new Set(); 
+var selectedBrands = [];
+var selectedCates = [];
+
+$(document).ready(function(){
+	
+	const tableBody = document.getElementById('carBrandTable'); // 테이블
+	const searchInput = document.getElementById('searchBrand');
+
+    // 검색 이벤트 처리
+    searchInput.addEventListener('keyup', function () {
+    	const keyword = this.value.trim();
+	    //console.log('Keyword:', keyword);
+	    loadAndUpdateCarBrands(keyword);
+    });
+
+    
+	$(document).on('change', 'input[type="checkbox"]', function () {
+		
+		if (!$(this).prop('checked')) {
+			var nm = $(this).attr("id");
+			var idx = selectedBrands.indexOf($(this).attr("id"));
+			if (idx !== -1) {
+				selectedBrands.splice(idx, 1);
+				brandTag.delete(nm);
+			}
+			sendAjaxRequest(selectedCates, Array.from(brandTag));
+			console.log("체크 해제", selectedBrands);
+		}
+		//차종분류
+		selectedCates = $('input[name="carCateDetail"]:checked').map(function(){
+			return $(this).val();
+		}).get();
+        console.log("현재 선택 카테고리:", selectedCates);
+		//브랜드
+        selectedBrands = $('input[name="carBrand"]:checked').map(function(){
+			return $(this).val();
+		}).get();
+		selectedBrands.forEach(brand => brandTag.add(brand));
+		console.log("현재 브랜드 태그(Set):", Array.from(brandTag));
+        updateBrandTagDisplay();
+        // AJAX 요청
+        sendAjaxRequest(selectedCates, Array.from(brandTag));
+		//예산
+		
+		//보조금 여부
+		
+	});
+
+	function updateBrandTagDisplay() {
+	    const tagContainer = document.getElementById('tagContainer');
+	    tagContainer.innerHTML = '';
+	    
+	    brandTag.forEach(item => {
+	    	const newTag = document.createElement('span');
+	    	const removeBtn = document.createElement('button');
+	    	
+	    	newTag.textContent = item;
+	        newTag.style.border = '1px solid #ddd';
+	        newTag.style.margin = '5px';
+	        newTag.style.padding = '10px';
+	        newTag.style.borderRadius = '5px';
+	        newTag.style.display = 'inline-block';
+
+	        removeBtn.textContent = 'X';
+	        removeBtn.type = 'button';
+	        removeBtn.style.marginLeft = '5px';
+	        removeBtn.style.border = 'none';
+	        removeBtn.style.background = 'red';
+	        removeBtn.style.color = 'white';
+	        removeBtn.style.cursor = 'pointer';
+	        removeBtn.onclick = () => {
+	        	brandTag.delete(item);
+	        	updateBrandTagDisplay();
+			    console.log("brandTag",brandTag);
+			    sendAjaxRequest(selectedCates, Array.from(brandTag));
+			    loadAndUpdateCarBrands();
+	        };
+
+	        // 태그와 버튼을 컨테이너에 추가
+	        newTag.appendChild(removeBtn);
+	        tagContainer.appendChild(newTag);
+	    })
+	}
+	
+	function sendAjaxRequest(selectedCates, selectedBrands) {		
+		 $.ajax({
+		        url: '/filter/updateSelected', // 서버 엔드포인트
+		        type: 'POST', // POST 요청
+		        contentType: 'application/json',
+		        data: JSON.stringify({
+		        	selectedCates: selectedCates,
+		            selectedBrands: Array.from(brandTag) // Set을 배열로 변환하여 전송
+		        }),
+		        success: function (response) {
+		            console.log('항목 제거 및 업데이트 성공:', response);
+		        },
+		        error: function (error) {
+		            console.error('항목 제거 및 업데이트 실패:', error);
+		        }
+		    });
+	}
+	
+	// 데이터 로드 및 테이블 업데이트 함수
+	function loadAndUpdateCarBrands(keyword = '') {
+	    const url = keyword === ''
+	        ? `${window.location.origin}/filter/updateSelected` // 전체 리스트 URL
+	        : `${window.location.origin}/filter/updateSelected?keyword=${encodeURIComponent(keyword)}`;
+	    console.log('Request URL:', url);
+
+	    fetch(url)
+	        .then(response => {
+	            if (!response.ok) {
+	                throw new Error(`HTTP error! status: ${response.status}`);
+	            }
+	            return response.json();
+	        })
+	        .then(data => {
+	            tableBody.innerHTML = '';
+	            if (data.length > 0) {
+	                data.forEach(item => {
+	                    const row = `
+	                        <tr class="table-light">
+	                            <td>
+	                                <input type="checkbox" id="${item.carBrand}" name="carBrand" value="${item.carBrand}" ${brandTag && brandTag.has(item.carBrand) ? 'checked' : ''}>
+	                                <label for="${item.carBrand}">
+	                                    <img src="/resources/assets/img/brandIcon/${item.brandImgUrl}"
+	                                         onerror="this.onerror=null; this.src='/resources/assets/img/brandIcon/basic.png';"
+	                                         alt="x" width="40" />
+	                                    <td>${item.carBrand}</td>
+	                                </label>
+	                            </td>
+	                        </tr>`;
+	                    tableBody.insertAdjacentHTML('beforeend', row);
+	                });
+	            } else {
+	                tableBody.innerHTML = '<tr><td colspan="2">검색 결과가 없습니다.</td></tr>';
+	            }
+	        })
+	        .catch(error => console.error('Error fetching data:', error));
+	}
+	// 전체 선택/해제 기능
+	const checkAll = document.getElementById('checkAll');
+	checkAll.addEventListener('change', function () {
+	    const isChecked = this.checked;
+	    const checkboxes = document.querySelectorAll('input[name="carBrand"]');
+	    checkboxes.forEach(checkbox => {
+	        checkbox.checked = isChecked;
+	        const brand = checkbox.value;
+	        if (isChecked) {
+	            brandTag.add(brand);
+	        } else {
+	            brandTag.delete(brand);
+	        }
+	    });
+	    updateBrandTagDisplay();
+	    sendAjaxRequest(selectedCates, Array.from(brandTag));
+	});
+	
+	//예산 슬라이드 실시간 값 화면에 반영
+	
+	// 페이지 로드 시 전체 리스트 로드
+	loadAndUpdateCarBrands();
+
+
+//function updateSliderValues() {
+//    const slideMin = document.getElementById('slideMin');
+//    const slideMax = document.getElementById('slideMax');
+//    const minValueDisplay = document.getElementById('minValueDisplay');
+//    const maxValueDisplay = document.getElementById('maxValueDisplay');
+//
+//    // 최소값과 최대값 슬라이더 값을 실시간으로 업데이트
+//    const minValue = parseInt(slideMin.value);
+//    const maxValue = parseInt(slideMax.value);
+//    
+//    //백분율계산
+//    const rangeMinPercent = (minValue / 10000) * 100;
+//    const rangeMaxPercent = 100 - (maxValue / 10000) * 100;
+//    slideContainer.style.left = `${rangeMinPercent}%`;
+//    slideContainer.style.right = `${rangeMaxPercent}%`;
+//    
+//
+//    // 값 반영
+//    minValueDisplay.textContent = slideMin.value;
+//    maxValueDisplay.textContent = slideMax.value;
+//}
+
+
+	const slideMin = document.getElementById('slideMin');
+	const slideMax = document.getElementById('slideMax');
+	const slideContainerInner = document.getElementById('slideContainerInner');
+	const minValueDisplay = document.getElementById('minValueDisplay');
+	const maxValueDisplay = document.getElementById('maxValueDisplay');
+	const priceGap = 500;
+
+	function updateSliderValues(event) {
+		const minValue = parseInt(slideMin.value);
+		const maxValue = parseInt(slideMax.value);
+	
+	    if (maxValue - minValue < priceGap) {
+	        if (event.target === slideMin) {
+	            slideMin.value = maxValue - priceGap;
+	        } else {
+	            slideMax.value = minValue + priceGap;
+	        }
+	    }
+	
+	    const rangeMinPercent = ((slideMin.value - slideMin.min) / (slideMin.max - slideMin.min)) * 100;
+	    const rangeMaxPercent = 100 - ((slideMax.value - slideMax.min) / (slideMax.max - slideMax.min)) * 100;
+	
+	    slideContainerInner.style.left = `${rangeMinPercent}%`;
+	    slideContainerInner.style.right = `${rangeMaxPercent}%`;
+	
+	    minValueDisplay.textContent = slideMin.value;
+	    maxValueDisplay.textContent = slideMax.value;
+		
+	}
+	slideMin.addEventListener('input', updateSliderValues);
+	slideMax.addEventListener('input', updateSliderValues);
+	
+	updateSliderValues({ target: slideMin });
+	
+	
+	
+});
+	

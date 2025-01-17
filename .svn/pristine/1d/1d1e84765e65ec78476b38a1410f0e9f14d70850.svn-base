@@ -1,0 +1,85 @@
+@charset "UTF-8";
+
+/* footer 추가 css */
+/* body안의 메인 컨텐츠 가운데에 위치 */
+body {
+	padding-bottom: 87px;
+}
+
+/* 모바일 화면에서 크기 조정 */
+@media (max-width: 768px) {
+	body {
+		padding-bottom: 60px;
+	}
+}
+
+.footer-nav {
+	/* 철규 수정 */
+	position: fixed;
+	/* 화면 하단에 고정 */
+	bottom: 0;
+	/* 화면 하단 */
+	left: 50%;
+	/* 화면의 가운데 기준으로 정렬 */
+	transform: translateX(-50%);
+	/* 가운데 정렬 */
+	width: 744px;
+	/* 부모 컨테이너의 폭에 맞춤 */
+	z-index: 1050;
+	/* 다른 요소 위로 배치 */
+	background-color: #ffffff;
+	/* 배경색 */
+}
+
+.footer-nav .btn {
+	border: none;
+	background: none;
+	color: #6c757d;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	transition: color 0.2s;
+}
+
+.footer-nav .btn:hover {
+	color: #007bff;
+}
+
+.footer-nav .btn i {
+	font-size: 1.5rem;
+	margin-bottom: 0.2rem;
+}
+
+.footer-nav .btn span {
+	font-size: 1rem;
+}
+
+/* 모바일 화면에서 크기 조정 */
+@media (max-width: 768px) {
+	.footer-nav .btn i {
+		font-size: 1rem;
+		/* 아이콘 크기 축소 */
+	}
+
+	.footer-nav .btn span {
+		font-size: 0.75rem;
+		/* 글씨 크기 축소 */
+	}
+
+	.footer-nav .btn {
+		padding: 0.1rem;
+		/* 간격 축소 */
+	}
+
+	.footer-nav {
+		/* 철규 수정 */
+		width: 100%;
+		/* 부모 컨테이너의 폭에 맞춤 */
+		max-width: 768px;
+		/* 최대 폭 제한 */
+	}
+
+}
+
+/* footer 추가 css */

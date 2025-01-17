@@ -1,0 +1,125 @@
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ page session="false" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <!-- 프레임 워크 jquery and bootStrap-->
+     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+         crossorigin="anonymous"></script>
+     <!-- 프레임 워크 jquery and bootStrap-->
+    <title>mainpage</title>
+</head>
+
+<style>
+    body{
+        background-color: #B7B7B7
+    }
+    .container {
+        width:768px;
+
+    }
+    .hdstyle{
+        background-color: white;
+        
+    }
+
+    .mainheader{
+        height: 160px;
+
+
+    }
+
+    .mainbody{
+        background-color: #ffffff;
+    }
+    .bdr{
+        border-radius: 10px;
+        transition-duration: 0.3s;
+    }
+    .bdr:hover{
+        transform: scale(0.99);
+    }
+    .bdrt{
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+    }
+    .bdrb{
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
+    }
+    .bd3px{
+        border: 4px solid white;
+    }
+    .imgsize{
+        background-image: url('./img/img.png');
+        background-size: cover;
+    }
+    .textmenu{
+        font-size: 25px;
+        color: white;
+        font-weight: 1000;
+    }
+    .menu{
+        width: 75px;
+        height: 75px;
+        border: 1px solid;
+    }
+
+</style>
+
+<body>
+    <div class="container mainpage">
+    <div class="container hdstyle bd3px bdrt ">
+        <div class="row mainheader mx-2 d-flex justify-content-between" >
+            <div class="col d-flex align-items-end" style="font-size: 75px; font-weight: 1000;">
+                <a href="./mainPage.html" style="text-decoration: none;"><span style="color: #FFD050;">e</span><span style="color: #50B0FF;">Motion</span></a>
+            </div>
+                <div class="col d-flex align-items-end justify-content-end mb-3">
+                    <button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="#offcanvasRight">보튼</button>
+                    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
+                      <div class="offcanvas-header">
+                        <h5 id="offcanvasRightLabel">마이페이지</h5>
+                        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                      </div>
+                      <div class="offcanvas-body">
+                        <span>로그인하신 후 이용 하실 수 있는 서비스 입니다.</span>
+                        <a href="./login.html"> 로그인 하기</a>
+                      </div>
+                    </div>
+                </div>
+        </div>
+    </div>
+    <div class="container bd3px bdrb">
+        <div class="row mainbody p-4">
+            <div class="col">
+                <div class="row " style=" height: 260px;  margin-bottom: 20px;">
+                   <div onclick="location.href='./routine.html';"
+                    class="col bdr bd3px textmenu" style=" background-color: #C9EEFF; cursor:pointer;" >나의 루틴 에너지 절감량 분석</div>
+                </div>
+                
+                <div class="row " style=" height: 400px; margin-bottom: 20px;">
+                    <div onclick="location.href='./map.html';" class="col imgsize bdr bd3px textmenu" style="cursor:pointer; color: black;">지도및 길찾기</div>
+                </div>
+                <div class="row" style="height: 260px; margin-bottom: 20px;">
+                    <div onclick="location.href='./preper.html';" class="col bdr bd3px textmenu" style="margin-right: 20px; background-color: #C9EEFF; cursor:pointer;">전기차 구매 추천 가이드</div>
+                    <div onclick="location.href='./board.html';" class="col bdr bd3px textmenu" style="background-color: #C9EEFF; cursor:pointer;">전기차 게시판</div>
+                </div>
+                <div  class="row " style=" height: 260px; ">
+                    <div class="col bdr bd3px textmenu" style=" background-color: #C9EEFF; cursor:pointer;">나의 루틴 에너지 절감량 분석</div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,142 @@
+<%
+  /* ================================================================= 
+   * 작성일     : 2024. 12. 17. 
+   * 작성자     : 서원빈
+   * 상세설명  : 
+   * 화면ID  :
+   * ================================================================= 
+   * 수정일         작성자             내용      
+   * ----------------------------------------------------------------------- 
+   * ================================================================= 
+   */
+%>
+
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>차량 분류 필터</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        .filter-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .filter-container label {
+            display: inline-block;
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .filter-container input[type="checkbox"] {
+            display: none;
+        }
+
+        .filter-container input[type="checkbox"]:checked + label {
+            background-color: #007BFF;
+            color: white;
+            border-color: #007BFF;
+        }
+    </style>
+</head>
+<body>
+	<form id="vehicleFilterForm" action="/getSelect" method="POST">
+        <div class="filter-container">  
+		    <h2>Passenger Cars</h2>   
+		        <c:forEach var="item" items="${passCate}">
+		        	<input type="checkbox" id="${item.carCateDetail}" name="carCateDetail" value="${item.carCateDetail}">
+		        	<label for="${item.carCateDetail}"><img src="resources/assets/img/carIcon/${item.cateImgUrl}" alt="Image" width="20" />${item.carCateDetail}</label>
+		        </c:forEach>	
+        </div>
+        <div class="filter-container">	        
+			<h2>Freight Cars</h2>
+        		<c:forEach var="item" items="${freiCate}">
+		        	<input type="checkbox" id="${item.carCateDetail}" name="carCateDetail" value="${item.carCateDetail}">
+		        	<label for="${item.carCateDetail}"><img src="resources/assets/img/carIcon/${item.cateImgUrl}" alt="Image" width="20" />${item.carCateDetail}</label>
+		        </c:forEach>
+        </div>
+        <div class="filter-container">			        	
+        	<h2>Vans</h2>      
+        		<c:forEach var="item" items="${vansCate}">
+		        	<input type="checkbox" id="${item.carCateDetail}" name="carCateDetail" value="${item.carCateDetail}">
+		        	<label for="${item.carCateDetail}"><img src="resources/assets/img/carIcon/${item.cateImgUrl}" alt="Image" width="20" />${item.carCateDetail}</label>
+		        </c:forEach>
+        </div>
+        <div class="filter-container">			        
+    		<h2>Motorcycles</h2>
+        		<c:forEach var="item" items="${motoCate}">
+		        	<input type="checkbox" id="${item.carCateDetail}" name="carCateDetail" value="${item.carCateDetail}">
+		        	<label for="${item.carCateDetail}"><img src="resources/assets/img/carIcon/${item.cateImgUrl}" alt="Image" width="20" />${item.carCateDetail}</label>
+		        </c:forEach>		        	        
+        </div>
+        <div class="filter-container">
+		    <h2>Brand</h2>
+		    <!-- 검색창 -->
+		    <input type="text" id="brandSearchInput" placeholder="Search brand..." onkeyup="filterBrandList()" />
+		
+		    <!-- 스크롤 리스트 -->
+		    <div id="brandListContainer" style="max-height: 200px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;">
+		        <c:forEach var="brand" items="${brandList}">
+		            <div>
+		                <!-- 체크박스 추가 -->
+		                <input type="checkbox" id="${brand}" name="carBrand" value="${brand}" onchange="updateSelectedBrands(this)">
+		                <label for="${brand}">${brand}</label>
+		            </div>
+		        </c:forEach>
+		    </div>
+		</div>
+        <br>
+<!--         <button type="button" onclick="getSelectedValues()">선택 완료</button> -->
+        <button type="submit">선택 완료</button>
+    </form>
+
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script>
+	//선택된 체크박스 값 배열로 저장
+		$(document).ready(function () {
+			$('input[type="checkbox"]').on('change', function(){
+				const selectedValues = $('input[name="carCateDetail"]:checked').map(function(){
+					return $(this).val();
+				}).get();
+				//AJAX요청
+				$.ajax({
+					url: '/filter/updateSelected',
+					type: 'POST',
+					contentType: 'application/json',
+					data: JSON.stringify({ selected: selectedValues }),
+					success: function(response){
+						console.log('선택 사항 업데이트 성공: ', response);
+					},
+					error: function(error){
+						console.error('선택 사항 업데이트 실패: ', error);
+					}
+				});
+			});
+		});
+	</script>
+	
+	
+	
+	
+	
+	
+	
+</body>
+</html>

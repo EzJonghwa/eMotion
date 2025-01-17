@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.eMotion.team.push.dao.SubscriptionDAO">
+
+    <!-- 구독 추가 -->
+	<insert id="insertSubscription" parameterType="SubscriptionVO">
+	    
+	    MERGE INTO notifications a
+		USING DUAL 
+		ON (a.EMAIL = #{email} AND a.ENDPOINT = #{endpoint})
+		WHEN NOT MATCHED THEN
+		    INSERT (NOTI_ID, EMAIL, ENDPOINT, P256DH_KEY, AUTH_KEY, CREATE_DT)
+		    VALUES (SEQ_NOTI_ID.NEXTVAL, #{email}, #{endpoint}, #{p256dhKey}, #{authKey}, SYSDATE)
+		    
+	</insert>
+	
+	
+	<!-- 방장이 고객에게  -->
+	<select id="sendToMessage" resultType="SubscriptionVO" parameterType="MessageVO">
+	
+		SELECT *
+		FROM notifications		
+		WHERE email =#{receiverEmail}
+		
+	</select>
+	
+</mapper>

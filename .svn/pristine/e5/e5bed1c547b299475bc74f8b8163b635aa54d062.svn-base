@@ -1,0 +1,51 @@
+package com.eMotion.team.member.controller;
+
+import java.io.IOException;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import com.eMotion.team.member.service.MemberService;
+import com.eMotion.team.member.vo.MemberVO;
+
+@Component
+public class AutoLoginFilter extends OncePerRequestFilter {
+
+    @Autowired
+    private MemberService memberservice;
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
+
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("login") == null) {
+            Cookie[] cookies = request.getCookies();
+            if (cookies != null) {
+                for (Cookie cookie : cookies) {
+                    if ("autoLogin".equals(cookie.getName())) {
+                        String autoLoginToken = cookie.getValue();
+                        MemberVO member = memberservice.findByAutoLoginToken(autoLoginToken);
+
+                        if (member != null) {
+                            // 자동 로그인 처리
+                            session = request.getSession(); // 새로운 세션 생성
+                            session.setAttribute("login", member);
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
+        filterChain.doFilter(request, response);
+    }
+}

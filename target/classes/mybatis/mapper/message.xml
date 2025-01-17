@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.eMotion.team.message.dao.IMessageDAO">
+
+
+    <!-- 쪽지 보내기 -->
+    <insert id="insertMessage" parameterType="MessageVO">
+        INSERT INTO message (senderEmail, receiverEmail, msgContent, msgSendDate)
+        VALUES (#{senderEmail}, #{receiverEmail}, #{msgContent}, SYSDATE)
+    </insert>
+
+   <!-- 받은 쪽지 페이징 쿼리 -->
+<select id="getReceivedMessages" parameterType="map" resultType="MessageVO">
+    SELECT * 
+    FROM (
+        SELECT 
+            m.msgNo, 
+            m.senderEmail, 
+            mem.nickname AS senderNickname, 
+            m.receiverEmail, 
+            m.msgContent, 
+            m.msgSendDate, 
+            m.msgRead, 
+            ROW_NUMBER() OVER (
+                ORDER BY 
+                <choose>
+                    <when test="sort == 'oldest'">
+                        m.msgSendDate ASC
+                    </when>
+                    <when test="sort == 'unread'">
+                        m.msgRead ASC, m.msgSendDate DESC
+                    </when>
+                    <otherwise>
+                        m.msgSendDate DESC
+                    </otherwise>
+                </choose>
+            ) AS rn
+        FROM 
+            message m
+        JOIN 
+            member mem 
+        ON 
+            m.senderEmail = mem.email
+        WHERE 
+            m.receiverEmail = #{receiverEmail}
+            AND m.receiverDelYn = 'N'
+    )
+    WHERE rn BETWEEN #{startRow} AND #{endRow}
+</select>
+
+
+
+
+  <!-- 보낸 쪽지 페이징 쿼리 -->
+<select id="getSentMessages" parameterType="map" resultType="MessageVO">
+    SELECT * 
+    FROM (
+        SELECT 
+            m.msgNo, 
+            m.senderEmail, 
+            m.receiverEmail, 
+            mem.nickname AS receiverNickname, 
+            m.msgContent, 
+            m.msgSendDate, 
+            m.msgRead, 
+            ROW_NUMBER() OVER (
+                ORDER BY 
+                <choose>
+                    <when test="sort == 'oldest'">
+                        m.msgSendDate ASC
+                    </when>
+                    <when test="sort == 'unread'">
+                        m.msgRead ASC, m.msgSendDate DESC
+                    </when>
+                    <otherwise>
+                        m.msgSendDate DESC
+                    </otherwise>
+                </choose>
+            ) AS rn
+        FROM 
+            message m
+        JOIN 
+            member mem 
+        ON 
+            m.receiverEmail = mem.email
+        WHERE 
+            m.senderEmail = #{senderEmail}
+            AND m.senderDelYn = 'N'
+    )
+    WHERE rn BETWEEN #{startRow} AND #{endRow}
+</select>
+
+<select id="countUnreadMessages" parameterType="String" resultType="int">
+    SELECT COUNT(*)
+    FROM message
+    WHERE receiverEmail = #{receiverEmail}
+      AND msgRead = 'N'
+      AND receiverDelYn = 'N'
+</select>
+
+
+
+
+
+    <!-- 쪽지 읽음 처리 -->
+<update id="updateMessageReadStatus" parameterType="int">
+    UPDATE message
+    SET msgRead = 'Y'
+    WHERE msgNo = #{msgNo}
+</update>
+
+<update id="updateSenderMessageAsDeleted" parameterType="int">
+    UPDATE message
+    SET senderDelYn = 'Y'
+    WHERE msgNo = #{msgNo}
+</update>
+
+<update id="updateReceiverMessageAsDeleted" parameterType="int">
+    UPDATE message
+    SET receiverDelYn = 'Y'
+    WHERE msgNo = #{msgNo}
+</update>
+
+<update id="markSenderMessagesAsDeleted" parameterType="list">
+    UPDATE message
+    SET senderDelYn = 'Y'
+    WHERE msgNo IN
+    <foreach item="msgNo" collection="list" open="(" separator="," close=")">
+        #{msgNo}
+    </foreach>
+</update>
+
+<update id="markReceiverMessagesAsDeleted" parameterType="list">
+    UPDATE message
+    SET receiverDelYn = 'Y'
+    WHERE msgNo IN
+    <foreach item="msgNo" collection="list" open="(" separator="," close=")">
+        #{msgNo}
+    </foreach>
+</update>
+
+    <select id="countReceivedMessages" parameterType="String" resultType="int">
+    SELECT COUNT(*)
+    FROM message
+    WHERE receiverEmail = #{receiverEmail}
+      AND receiverDelYn = 'N'
+</select>
+    <select id="countSentMessages" parameterType="String" resultType="int">
+    SELECT COUNT(*)
+    FROM message
+    WHERE senderEmail = #{senderEmail}
+      AND senderDelYn = 'N'
+</select>
+</mapper>

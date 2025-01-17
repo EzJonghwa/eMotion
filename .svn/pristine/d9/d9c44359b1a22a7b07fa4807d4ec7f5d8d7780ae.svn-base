@@ -1,0 +1,5 @@
+package com.eMotion.team.message.dao;
+
+public interface IMessageDAO {
+
+}

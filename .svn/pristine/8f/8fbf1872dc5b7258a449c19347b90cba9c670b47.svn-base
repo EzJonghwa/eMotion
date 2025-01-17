@@ -1,0 +1,427 @@
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- 프레임 워크 jquery and bootStrap-->
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+	rel="stylesheet"
+	integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+	crossorigin="anonymous">
+<script
+	src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+	integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+	crossorigin="anonymous"></script>
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css"
+	rel="stylesheet">
+
+<!-- 프레임 워크 jquery and bootStrap-->
+<!-- 카카오 맵 api -->
+<script
+	src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+<title>MainPage</title>
+
+</head>
+<style>
+
+/* body안의 메인 컨텐츠 가운데에 위치 */
+body {
+	display: flex;
+	justify-content: center;
+	background-color: #B7B7B7;
+}
+::-webkit-scrollbar {
+	display: none;
+}
+
+
+/* 스크롤바 제거를 위한 css */
+.cont::-webkit-scrollbar {
+	display: none;
+}
+/* main 컨텐츠 css   */
+.cont {
+	background-color: white;
+	width: 768px;
+	height: 141vh;
+	box-shadow: 0 5px 8px rgba(57, 57, 57, 0.16), 0 5px 8px
+		rgba(57, 57, 57, 0.16);
+	-ms-overflow-style: none;
+	/* 인터넷 익스플로러 */
+	scrollbar-width: none;
+	/* 파이어폭스 */
+}
+
+/* 그리드 테스트용 brd 추가 */
+.brd {
+	border: 1px dotted;
+}
+/* 그리드 테스트용 brd 추가 */
+
+/* 로고 디자인*/
+.md_logo {
+	font-size: 3rem;
+	/* 화면 너비에 비례한 폰트 크기 */
+	font-weight: 600;
+	color: #828282;
+}
+
+/* 부트에서 정해주는 버튼들 색상 변경 */
+.btn-primary {
+	font-weight: 1000;
+	background-color: #50B0FF;
+	border: none;
+}
+
+.btn-danger {
+	font-weight: 1000;
+	background-color: #FF4B5D;
+	border: none;
+}
+
+.btn-warning {
+	font-weight: 1000;
+	background-color: #FFD52D;
+	border: none;
+}
+
+.btn-danger:hover {
+	background-color: #fa1b31;
+}
+
+.btn-warning:hover {
+	background-color: #facb0c;
+}
+
+.btn-primary:hover {
+	background-color: #37a1f8;
+}
+/* 부트에서 정해주는 버튼들 색상 변경 */
+
+
+/* 메인 화면에서 다른 화면으로 이동하는 박스 사이즈 */
+.box_size {
+	border-radius: 10px;
+	background-color: #C9EEFF;
+	cursor: pointer;
+	margin-bottom: 20px;
+	height: 25vh;
+	min-height: 50px;
+	max-height: 250px;
+	transition-duration: 0.3s;
+}
+/* 맵으로 이동하는 부분 */
+.box_size.mapimg {
+	height: 40vh;
+	min-height: 100px;
+	max-height: 400px;
+	background-image: url('assets/img/img.png');
+	background-size: cover;
+}
+/* 박스 안의 텍스트 */
+.textmenu {
+	font-size: 25px;
+	color: white;
+	font-weight: 1000;
+}
+/* 마우스 올리면 크기 변화 */
+.box_size:hover {
+	transform: scale(0.99);
+}
+/* HEADER 와 메인 사이의 파란색 줄 */
+.bot_brd {
+	box-shadow: 0px 5px 0px 0px #d6edff;
+}
+</style>
+<style>
+/* 오프 캔버스 관련 css */
+.offmain {
+	position: relative;
+	/* Offcanvas의 기준 컨테이너로 설정 */
+}
+
+.offcanvas-custom {
+	position: absolute;
+	/* 부모 요소를 기준으로 배치 */
+	top: 0;
+	right: 0;
+	/* 오른쪽에서 시작 */
+	width: 80%;
+	height: 100%;
+	transform: translateX(100%);
+	/* 기본적으로 숨김 상태 */
+	transition: transform 0.3s ease-in-out;
+	background-color: #f8f9fa;
+	z-index: 1050;
+	/* 배경보다 위에 배치 */
+}
+
+.offcanvas-custom.show {
+	transform: translateX(0);
+	/* 보이는 상태 */
+}
+
+.offcanvas-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.5);
+	/* 어두운 반투명 배경 */
+	opacity: 0;
+	visibility: hidden;
+	transition: opacity 0.3s ease-in-out;
+	z-index: 1040;
+	/* Offcanvas 아래 배치 */
+}
+
+.offcanvas-overlay.show {
+	opacity: 1;
+	visibility: visible;
+	/* 배경 활성화 */
+}
+</style>
+
+<body>
+	<div class="cont offmain overflow-y-auto">
+		<div class="mainhead bot_brd mb-3 p-2" style="width: 100%;">
+
+
+			<div class="row mt-5 mx-3">
+				<div class="col d-flex align-items-center justify-content-between">
+					<div style="cursor: pointer;"
+						onclick="${pageContext.request.contextPath}/">
+						<h1 class="md_logo" style="text-align: center;">
+							<span style="color: #FFD050;">e</span><span
+								style="color: #50B0FF;">Motion</span>
+						</h1>
+					</div>
+					<i class="bi bi-list" style="font-size: 50px; cursor: pointer;"
+						id="toggleOffcanvas"></i>
+				</div>
+				<!-- Overlay -->
+				<div class="offcanvas-overlay" id="offcanvasOverlay"></div>
+
+				<!-- Offcanvas -->
+				<div class="offcanvas-custom brd" id="customOffcanvas">
+					<div class="p-3">
+						<div class="row d-flex align-items-start p-3">
+							<div class="col">
+								<h3>마이페이지</h3>
+							</div>
+							<div class="col d-flex justify-content-end">
+								<button type="button" class="btn-close align-self-center"
+									class="btn-close fs-3" id="closeOffcanvas"></button>
+							</div>
+
+
+						</div>
+
+						<c:if test="${sessionScope.login != null }">
+							<div class="row px-3 py-5 d-flex align-items-center">
+								<div class="brdimg"
+									style="width: 130px; height: 130px; border-radius: 50%; overflow: hidden; padding: 0;">
+
+									<c:if test="${sessionScope.login.profileImg == null}">
+										<img
+											src="${pageContext.request.contextPath}/assets/img/non.png"
+											id="myImage" class="img-fluid shadow-sm w-100 h-100"
+											style="cursor: default;">
+									</c:if>
+									<c:if test="${sessionScope.login.profileImg != null}">
+										<img
+											src="${pageContext.request.contextPath}${sessionScope.login.profileImg}"
+											id="myImage" class="img-fluid shadow-sm w-100 h-100"
+											style="cursor: default;">
+									</c:if>
+
+								</div>
+								<div class="col fs-4">
+									<span>${sessionScope.login.nickName} <br> <c:if
+											test="${sessionScope.login.kakaoYn eq 'N' }">
+									${sessionScope.login.email}(이메일계정)
+								</c:if> <c:if test="${sessionScope.login.kakaoYn eq 'Y' }">
+									${sessionScope.login.email}(카카오계정)
+								</c:if>
+									</span> <br> <br>
+									<!-- 쪽지 버튼 추가 -->
+									<c:if test="${sessionScope.login != null}">
+										<a
+											href="${pageContext.request.contextPath}/messagesViewDo?receiverEmail=${sessionScope.login.email}"
+											class="btn btn-primary"> <i class="bi bi-chat-dots"></i>
+											쪽지함
+										</a>
+										<span id="messageBadge"></span>
+										<button id="subscribeBtn">푸시 알람 구독하기!</button>
+										<input type="hidden" id="userId"
+											value="${sessionScope.login.email}">
+										<input type="hidden" value="${vapidPublicKey}" id="key">
+
+									</c:if>
+									<br> <br> <a
+										href="${pageContext.request.contextPath}/logoutDo">로그아웃</a>
+								</div>
+							</div>
+						</c:if>
+						<c:if test="${sessionScope.login == null }">
+							<div class="row px-3 py-5 d-flex align-items-center">
+								<div class="brdimg"
+									style="width: 130px; height: 130px; border-radius: 50%; overflow: hidden; padding: 0;">
+
+									<c:if test="${sessionScope.login.profileImg == null}">
+										<img
+											src="${pageContext.request.contextPath}/assets/img/loginImg.png"
+											id="myImage" class="img-fluid shadow-sm w-100 h-100"
+											style="cursor: default;">
+									</c:if>
+
+								</div>
+								<div class="col fs-4">
+									<span>로그인 하신후 <br>이용하실수 있는 서비스입니다.
+									</span> <br> <br> <a
+										href="${pageContext.request.contextPath}/loginView">로그인하기</a>
+								</div>
+							</div>
+						</c:if>
+
+
+						<div class="row mb-5 px-3">
+							<hr style="border-top: 2px dashed black;">
+						</div>
+
+						<c:if test="${sessionScope.login == null }">
+
+						</c:if>
+						<c:if test="${sessionScope.login != null }">
+							<div class="row px-3 py-5" style="cursor: pointer;">
+								<div class="col ">
+									<c:if test="${sessionScope.login.kakaoYn eq 'N' }">
+										<span class="fs-3"
+											onclick="location.href='${pageContext.request.contextPath}/mypageRewrite'">개인정보
+											수정</span>
+									</c:if>
+									<c:if test="${sessionScope.login.kakaoYn eq 'Y' }">
+										<span class="fs-3"
+											onclick="location.href='${pageContext.request.contextPath}/kakaomypageRewrite'">개인정보
+											수정</span>
+									</c:if>
+								</div>
+								<div class="col d-flex justify-content-end">
+									<span class="fs-2">></span>
+								</div>
+								<hr>
+							</div>
+							<div class="row px-3	py-5" style="cursor: pointer;"
+								onclick="location.href='${pageContext.request.contextPath}/saveListView'">
+								<div class="col">
+									<span class="fs-3">보유 차량 정보</span>
+								</div>
+								<div class="col d-flex justify-content-end">
+									<span class="fs-2">></span>
+								</div>
+								<hr>
+							</div>
+							<div class="row px-3 py-5"  style="cursor: pointer;"
+								onclick="location.href='${pageContext.request.contextPath}/myLikeList'">
+								<div class="col ">
+									<span class="fs-3">저장한 전기차 목록</span>
+								</div>
+								<div class="col d-flex justify-content-end">
+									<span class="fs-2">></span>
+								</div>
+								<hr>
+							</div>
+						</c:if>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="mainbody px-4 m-2">
+			<div class="row">
+				<div onclick="location.href='#'" class="col box_size carousel slide"
+					id="carouselExampleControls" data-bs-ride="carousel">
+					<div class="carousel-inner">
+						<div class="carousel-item active textmenu">전기차 뭐시기 정보</div>
+						<div class="carousel-item textmenu">전기차 뭐시기 정보</div>
+						<div class="carousel-item textmenu">전기차 뭐시기 정보</div>
+					</div>
+					<button class="carousel-control-prev" type="button"
+						data-bs-target="#carouselExampleControls" data-bs-slide="prev">
+						<span class="carousel-control-prev-iconc fw-semibold"
+							aria-hidden="true"></span> <span class="visually-hidden">Previous</span>
+					</button>
+					<button class="carousel-control-next" type="button"
+						data-bs-target="#carouselExampleControls" data-bs-slide="next">
+						<span class="carousel-control-next-icon" aria-hidden="true"></span>
+						<span class="visually-hidden">Next</span>
+					</button>
+				</div>
+			</div>
+			<div class="row">
+				<div
+					onclick="location.href='${pageContext.request.contextPath}/map'"
+					class="col textmenu box_size mapimg">지도및 길찾기</div>
+			</div>
+			<div class="row gap-4">
+				<div
+					onclick="location.href='${pageContext.request.contextPath}/filter'"
+					class="col textmenu box_size">전기차 구매 추천 가이드</div>
+				<div onclick="location.href='./board/list'" class="col textmenu box_size">
+					전기차 정보 게시판</div>
+			</div>
+			<div class="row">
+				<div onclick="location.href='/routinemain'" class="col textmenu box_size">
+					나의 루틴 에너지 절감량 분석</div>
+			</div>
+
+		</div>
+
+	</div>
+	<script>
+        const toggleButton = document.getElementById('toggleOffcanvas');
+        const closeButton = document.getElementById('closeOffcanvas');
+        const offcanvas = document.getElementById('customOffcanvas');
+        const overlay = document.getElementById('offcanvasOverlay');
+
+        // Offcanvas 열기
+        toggleButton.addEventListener('click', () => {
+            offcanvas.classList.add('show');
+            overlay.classList.add('show');
+        });
+
+        // Offcanvas 닫기
+        const closeOffcanvas = () => {
+            offcanvas.classList.remove('show');
+            overlay.classList.remove('show');
+        };
+        closeButton.addEventListener('click', closeOffcanvas);
+        overlay.addEventListener('click', closeOffcanvas); // 배경 클릭 시 닫기
+        
+        $(document).ready(function () {
+            $.ajax({
+                url: '/checkUnreadMessages',
+                type: 'GET',
+                success: function (hasUnread) {
+                    if (hasUnread) {
+                        $('#messageBadge').html('<span class="badge bg-danger ms-2">NEW</span>');
+                    }
+                },
+                error: function () {
+                    console.error('안 읽은 쪽지 확인 중 오류 발생');
+                }
+            });
+        });
+
+    </script>
+</body>
+
+</html>

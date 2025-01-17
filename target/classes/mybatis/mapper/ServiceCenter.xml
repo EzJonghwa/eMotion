@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eMotion.team.map.dao.ServiceCenterDAO">
+
+	<resultMap id="ServiceCenterResultMap" type="ServiceCenterVO">
+		<result property="name" column="name"/>
+		<result property="place" column="place"/>
+		<result property="brand" column="brand"/>
+		<result property="tel" column="tel"/>
+		<result property="lat" column="lat"/>
+		<result property="lon" column="lon"/>
+		<result property="note" column="note"/>
+	</resultMap>
+	
+	
+    <select id="getServiceCenter" resultMap="ServiceCenterResultMap">
+        SELECT name, place, brand, tel, lat, lon, note
+		FROM servicecenter
+		WHERE place LIKE '%대전%' 
+    </select>
+
+</mapper>

@@ -1,0 +1,126 @@
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>전기차 정보 게시판</title>
+<!-- 부트스트랩 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+    .board-table th, .board-table td {
+        vertical-align: middle;
+        text-align: center;
+    }
+</style>
+</head>
+<body class="bg-light">
+<div class="container my-5">
+    <h1 class="mb-3">게시판</h1>
+
+    <!-- 카테고리 탭 -->
+<ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+        <a class="nav-link ${selectedCategory == null || selectedCategory == 'all' ? 'active' : ''}" href="/board/list?category=all">전체</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link ${selectedCategory == '1' ? 'active' : ''}" href="/board/list?category=1">자유</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link ${selectedCategory == '2' ? 'active' : ''}" href="/board/list?category=2">정보</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link ${selectedCategory == '3' ? 'active' : ''}" href="/board/list?category=3">추천</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link ${selectedCategory == '4' ? 'active' : ''}" href="/board/list?category=4">질문</a>
+    </li>
+</ul>
+
+    <div class="d-flex flex-row justify-content-between mb-3 align-items-center" style="gap:0.5rem;">
+    
+        <!-- 검색 바 -->
+<form action="/board/list" method="get" class="d-flex flex-row" style="gap:0.5rem;">
+    <input type="hidden" name="category" value="${selectedCategory}">
+    <select name="searchType" class="form-select w-auto">
+        <option value="all" ${param.searchType == 'all' ? 'selected' : ''}>전체</option>
+        <option value="title" ${param.searchType == 'title' ? 'selected' : ''}>제목</option>
+        <option value="content" ${param.searchType == 'content' ? 'selected' : ''}>글내용</option>
+        <option value="writer" ${param.searchType == 'writer' ? 'selected' : ''}>작성자</option>
+    </select>
+    <input type="text" name="searchWord" value="${param.searchWord}" class="form-control w-auto" placeholder="검색어를 입력하세요." style="min-width:300px;">
+    <button type="submit" class="btn btn-primary">검색</button>
+</form>
+    </div>
+
+    <!-- 게시글 테이블 -->
+    <table class="table table-hover board-table align-middle bg-white">
+        <thead class="table-light">
+            <tr>
+                <th style="width:5%">글번호</th>
+                <th style="width:10%">카테고리</th>
+                <th style="width:40%">글제목</th>
+                <th style="width:10%">작성자</th>
+                <th style="width:10%">작성일</th>
+                <th style="width:5%">추천수</th>
+                <th style="width:5%">조회수</th>
+            </tr>
+        </thead>
+        <tbody>
+            <c:forEach var="board" items="${boardList}">
+                <tr>
+                    <td>${board.boNo}</td>
+					<td>${board.cateNm}</td>
+					<td class="text-start">
+					   <a href="/board/view?boNo=${board.boNo}">${board.boTitle} [${board.boComment}]</a>
+					</td>
+					<td>${board.nickname}</td>
+					<td><fmt:formatDate value="${board.boRegDate}" pattern="yyyy-MM-dd" /></td>
+					<td>${board.boRecommend}</td>
+					<td>${board.boHit}</td>
+                </tr>
+            </c:forEach>
+        </tbody>
+    </table>
+
+    <!-- 페이징 & 글 작성 버튼 -->
+    <div class="d-flex justify-content-between align-items-center mt-3">
+        <nav aria-label="페이지 네비게이션">
+            <ul class="pagination pagination-sm mb-0">
+                <c:if test="${pagination.hasPreviousPage}">
+                    <li class="page-item"><a class="page-link" href="${pagination.previousPageUrl}">&laquo;</a></li>
+                </c:if>
+                <c:forEach var="page" items="${pagination.pageList}">
+                    <li class="page-item ${page.current ? 'active' : ''}">
+                        <a class="page-link" href="${page.url}">${page.number}</a>
+                    </li>
+                </c:forEach>
+                <c:if test="${pagination.hasNextPage}">
+                    <li class="page-item"><a class="page-link" href="${pagination.nextPageUrl}">&raquo;</a></li>
+                </c:if>
+            </ul>
+        </nav>
+        
+		<c:choose>
+		    <c:when test="${not empty sessionScope.login}">
+		        <a href="/board/form" class="btn btn-success">글 작성</a>
+		    </c:when>
+		    <c:otherwise>
+		    </c:otherwise>
+		</c:choose>
+		
+    </div>
+</div>
+
+<!-- 부트스트랩 JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const isUserLoggedIn = ${sessionScope.login != null};
+</script>
+</body>
+</html>

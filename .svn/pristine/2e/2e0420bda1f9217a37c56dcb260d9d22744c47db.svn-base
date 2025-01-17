@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.eMotion.team.chart.dao.MapChartDAO">
+
+	<select id="getChartID" parameterType="MapChartVO" resultType="MapChartVO">
+	
+		select statid
+		from station
+		where statnm like CONCAT(CONCAT('%', #{stationName}), '%')
+		and lat like CONCAT(CONCAT('%', #{latitude}), '%')
+		and lon like CONCAT(CONCAT('%', #{longitude}), '%')
+
+
+		
+	</select>
+</mapper>

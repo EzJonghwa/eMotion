@@ -1,0 +1,15 @@
+package com.eMotion.team.compare.vo;
+
+import lombok.Data;
+
+@Data
+public class CarGasCompareVO {
+	
+	private String email;
+	private String carBrand;
+	private String carName;
+	private int carPrice;
+	private String carCateDetail;
+	private String person;
+	
+}

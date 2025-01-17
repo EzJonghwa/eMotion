@@ -1,0 +1,51 @@
+const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]')
+const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl))
+
+$(document).ready(function(){
+    $(".card").each(function(){
+        // 현재 카드의 imgurl 값 가져오기
+        const imgUrl = $(this).find('input[name="imgUrl"]').val();
+        console.log("imgUrl:", imgUrl);
+
+        // 이미지 경로 생성
+        const encodedPath = imgUrl;
+        const decodedPath = decodeURIComponent(encodedPath);
+
+        // 현재 카드의 img 태그에 경로 설정
+        $(this).find("img").attr("src", decodedPath);
+        console.log("Decoded Path:", decodedPath);
+        
+        const effLeftAll = $(this).find(".effLeftAll").val();
+        const effAllAll = $(this).find(".effAllAll").val();
+        const effLeftFirst = $(this).find(".effLeftFirst").val();
+        const effAllFirst = $(this).find(".effAllFirst").val();
+        const effLeftCorporation = $(this).find(".effLeftCorporation").val();
+        const effAllCorporation = $(this).find(".effAllCorporation").val();
+        const effLeftTaxi = $(this).find(".effLeftTaxi").val();
+        const effAllTaxi = $(this).find(".effAllTaxi").val();
+        const effLeftDelivery = $(this).find(".effLeftDelivery").val();
+        const effAllDelivery = $(this).find(".effAllDelivery").val();
+        const effLeftSmallCompany = $(this).find(".effLeftSmallCompany").val();
+        const effAllSmallCompany = $(this).find(".effAllSmallCompany").val();
+        const effLeftCommon = $(this).find(".effLeftCommon").val();
+        const effAllCommon = $(this).find(".effAllCommon").val();
+        
+        const popoverContent = `
+            ${effLeftAll}/${effAllAll}
+            ${effLeftFirst}/${effAllFirst}
+            ${effLeftCorporation}/${effAllCorporation}
+            ${effLeftTaxi}/${effAllTaxi}
+            ${effLeftDelivery}/${effAllDelivery}
+            ${effLeftSmallCompany}/${effAllSmallCompany}
+            ${effLeftCommon}/${effAllCommon}
+        `.trim();
+
+        // Set data-bs-content dynamically
+        $(this).find(".TO-btn").attr("data-bs-content", popoverContent);
+    });
+
+    
+    $('[data-bs-toggle="popover"]').popover();
+
+    
+});

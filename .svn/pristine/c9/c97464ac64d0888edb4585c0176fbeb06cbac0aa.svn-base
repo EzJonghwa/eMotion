@@ -1,0 +1,62 @@
+package com.eMotion.team.member.controller;
+
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.eMotion.team.member.service.MemberService;
+import com.eMotion.team.member.vo.MemberVO;
+
+@Controller
+public class MemberController {
+	
+	@Autowired
+	MemberService memberservice;
+	
+	@RequestMapping("/registView")
+	public String registView() {
+		return "member/registView";
+	}
+	
+	@RequestMapping("/registDo")
+	public String registDo(MemberVO vo) {
+		
+		System.out.println(vo);
+		
+		try {
+			memberservice.registMember(vo);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return "member/registView";
+	}
+	
+	@RequestMapping("/loginView")
+	public String logibView() {
+		return "member/loginView";
+	}
+	
+	@RequestMapping("/loginDo")
+	public String loginDo(MemberVO vo, HttpSession session) {
+		
+		System.out.println(vo);
+		
+		try {
+			MemberVO login = memberservice.loginMember(vo);
+			session.setAttribute("login", login);
+			System.out.println(login.email);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return "redirect:/loginView";
+		
+	}
+	
+	
+	
+	
+}

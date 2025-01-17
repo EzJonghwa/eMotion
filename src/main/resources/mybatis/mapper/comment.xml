@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.eMotion.team.board.dao.ICommentDAO">
+
+    <!-- 댓글 등록 -->
+<insert id="addComment" parameterType="CommentVO">
+    INSERT INTO comments (boNo, coContent, email, coRegDate, coDelYn, coParentId)
+    VALUES (#{boNo}, #{coContent}, #{email}, SYSDATE, 'N', #{coParentId})
+</insert>
+
+
+
+    <!-- 특정 게시글의 댓글 목록 조회 -->
+<select id="getCommentsByBoNo" parameterType="int" resultType="CommentVO">
+    SELECT 
+        c.coNo, 
+        c.boNo, 
+        c.coContent, 
+        c.email, 
+        c.coRegDate,
+        c.coModDate,
+        c.coDelYn, 
+        c.coParentId,
+        m.profileImg,
+        m.nickname
+    FROM comments c
+    LEFT JOIN MEMBER m ON c.email = m.email
+    WHERE c.boNo = #{boNo}
+      AND c.coDelYn = 'N'
+    ORDER BY NVL(c.coParentId, c.coNo), c.coRegDate ASC
+</select>
+
+
+    <!-- 댓글 수정 -->
+<update id="updateComment" parameterType="commentVO">
+    UPDATE comments
+    SET coContent = #{coContent},
+        coModDate = SYSDATE
+    WHERE coNo = #{coNo}
+</update>
+
+
+    <!-- 부모 댓글 삭제 상태 변경 -->
+    <update id="deleteParentComment" parameterType="int">
+        UPDATE comments
+        SET coDelYn = 'Y'
+        WHERE coNo = #{coNo}
+    </update>
+
+    <!-- 자식 댓글 삭제 상태 변경
+<update id="deleteChildComments" parameterType="int">
+    UPDATE comments
+    SET coDelYn = 'Y'
+    WHERE coParentId = #{coNo}
+</update> -->
+
+<!-- 자식 댓글 삭제 상태 변경 -->
+<update id="deleteChildComments" parameterType="int">
+    UPDATE comments
+    SET coDelYn = 'Y'
+    WHERE coParentId = #{coNo} AND coDelYn = 'N'
+</update>
+
+
+     <!-- 댓글 작성자 이메일 조회 -->
+    <select id="getCommentWriter" parameterType="int" resultType="string">
+        SELECT email FROM comments WHERE coNo = #{coNo}
+    </select>
+
+    <!-- 댓글 ID로 게시글 번호 조회 -->
+<select id="getBoNoByCommentId" parameterType="int" resultType="Integer">
+    SELECT boNo
+    FROM comments
+    WHERE coNo = #{coNo}
+    AND coDelYn = 'N'
+</select>
+
+    <!-- 댓글 수 증가 -->
+    <update id="incrementCommentCount" parameterType="int">
+        UPDATE board
+        SET boComment = boComment + 1
+        WHERE boNo = #{boNo}
+    </update>
+
+    <!-- 댓글 수 감소 -->
+<update id="decrementCommentCount" parameterType="int">
+    UPDATE board
+    SET boComment = boComment - 1
+    WHERE boNo = #{boNo}
+</update>
+    
+    <!-- 대댓글 개수 학인 -->
+    <select id="getChildCommentCount" parameterType="int" resultType="int">
+    SELECT COUNT(*) 
+    FROM comments 
+    WHERE coParentId = #{coNo} AND coDelYn = 'N'
+   </select>
+
+<!-- 부모댓글완전삭제 -->
+<delete id="permanentDeleteComment" parameterType="int">
+    DELETE FROM comments WHERE coNo = #{coNo}
+</delete>
+
+<update id="markChildrenDeleted" parameterType="int">
+    UPDATE comments
+    SET coDelYn = 'Y'
+    WHERE coParentId = #{coNo}
+</update>
+</mapper>

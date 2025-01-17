@@ -1,0 +1,9 @@
+package com.eMotion.team.compare.vo;
+
+import lombok.Data;
+
+@Data
+public class CarCompareVO {
+	
+	
+}

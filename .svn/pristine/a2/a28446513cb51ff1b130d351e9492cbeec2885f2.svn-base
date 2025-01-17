@@ -1,0 +1,44 @@
+
+<%
+	/* ================================================================= 
+	 * 작성일     : 2024. 12. 16. 
+	 * 작성자     : 철규
+	 * 상세설명  : 회원가입
+	 * 화면ID : 
+	 * ================================================================= 
+	 * 수정일         작성자             내용      
+	 * ----------------------------------------------------------------------- 
+	 * 
+	 * ================================================================= 
+	 */
+%>
+
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src='/resources/js/tmapapi.js'></script>
+  <title>TMAP 거리 계산</title>
+</head>
+<body>
+  <h1>출발지와 목적지 거리 계산</h1>
+  <div>
+    <label for="start">출발지:</label>
+    <input type="text" id="start" placeholder="출발지를 입력하세요" oninput="autoComplete('start')">
+    <div id="start-results" class="autocomplete-results"></div>
+  </div>
+  <div>
+    <label for="end">목적지:</label>
+    <input type="text" id="end" placeholder="목적지를 입력하세요" oninput="autoComplete('end')">
+    <div id="end-results" class="autocomplete-results"></div>
+  </div>
+  <button id="calculate-distance">거리 계산</button>
+  <p id="result"></p>
+
+</body>
+</html>

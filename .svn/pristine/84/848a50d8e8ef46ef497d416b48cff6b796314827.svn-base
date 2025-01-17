@@ -1,0 +1,13 @@
+package com.eMotion.team.preperCar.vo;
+
+import lombok.Data;
+
+@Data
+public class PreperCarVO {
+
+	private int rownum;
+	private int preperId;
+	private String eCarName;
+	private String email;
+	private String link;
+}

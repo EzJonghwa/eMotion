@@ -1,0 +1,52 @@
+/* 프로그래스 바 css 입니당 */
+
+.progress-container {
+	display: flex;
+	width: 100%;
+	height: 20px;
+	background-color: #f3f3f3;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+	border-radius: 50px;
+	position: relative;
+	margin-bottom: 20px;
+}
+
+.progress-bar {
+	height: 100%;
+	border-radius: 50px;
+	transition: width 0.5s ease-in-out;
+}
+
+.progress-bar:hover {
+	opacity: 80%;
+}
+
+.progress-bar.left-progress {
+	background-color: #83C4FF;
+}
+
+.progress-bar.right-progress {
+	background-color: #F46C46;
+}
+
+.tips {
+	position: absolute;
+	background-color: #fff;
+	padding: 5px 10px;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+	display: none;
+	pointer-events: none;
+	z-index: 10;
+}
+
+.headfont {
+	color: #695B40;
+	font-weight: 1000;
+}
+
+.headfont.center {
+	font-weight: 1000;
+	color: #372504;
+}

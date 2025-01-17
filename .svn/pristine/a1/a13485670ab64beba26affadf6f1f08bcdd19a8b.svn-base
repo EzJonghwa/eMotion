@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.eMotion.team.routine.dao.IRoutineDAO">
+
+	<select id="getGasCarList" resultType="GasCarVO" parameterType="GasCarVO">
+	
+		SELECT carname
+		FROM gascarinfo
+		WHERE UPPER(carname) LIKE UPPER('%' || #{keyword} || '%')
+		
+	</select>
+	
+	<select id="getElecCarList" resultType="ElecCarVO" parameterType="ElecCarVO">
+		
+		SELECT carname
+		FROM eleccarinfo
+		WHERE UPPER(carname) LIKE UPPER('%' || #{keyword} || '%')
+			
+	</select>
+	<select id="getRoutineList" resultType="RoutineVO" parameterType="RoutineVO">
+	
+		SELECT rouTitle,rouDetail,rouDay,startLoc,endLoc,totalDis,roundTripYn,gasCar,eleCar
+		FROM routine
+		WHERE email=#{email}
+
+	</select>
+	
+	<insert id="writeRoutine" parameterType="RoutineVO">
+	
+	INSERT INTO routine (routine_no,email,rouTitle,rouDetail,rouDay,startLoc,endLoc,totalDis,roundTripYn,gasCar,eleCar)
+	VALUES (routine_seq.NEXTVAL,#{email},#{rouTitle},#{rouDetail},#{rouDay},#{startLoc},#{endLoc},#{totalDis},#{roundTripYn},#{gasCar},#{eleCar})
+	</insert>
+	
+	
+</mapper>
